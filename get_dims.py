@@ -1,7 +1,55 @@
 """Jolpi API requests"""
 #circuits, constructors, 
 import requests
+import pandas as pd
 from datetime import datetime
+import psycopg2
+from psycopg2.extras import execute_batch
+
+#make this dictionary
+def map_dtype_to_pg(dtype):
+    if pd.api.types.is_string_dtype(dtype):
+        return "TEXT"
+    elif pd.api.types.is_integer_dtype(dtype):
+        return "INTEGER"
+    elif pd.api.types.is_float_dtype(dtype):
+        return "DOUBLE PRECISION"
+    elif pd.api.types.is_bool_dtype(dtype):
+        return "BOOLEAN"
+    elif pd.api.types.is_datetime64_any_dtype(dtype):
+        return "TIMESTAMP"
+    else:
+        return "TEXT"  # Fallback
+
+
+def update_table(table_as_df: pd.DataFrame, table_name: str, pk: str):
+    connection = psycopg2.connect(host = "localhost", port = 5432, database = "postgres", user = "postgres", password = "postgres")
+    cur = connection.cursor()
+
+    columns = ",\n".join([
+        f"{col} {map_dtype_to_pg(dtype)}" + (" PRIMARY KEY" if col == pk else "")
+        for col, dtype in table_as_df.dtypes.items()
+    ])
+    # SQL to create table if it doesn't exist
+    create_table_query = f"CREATE TABLE IF NOT EXISTS {table_name} (\n{columns}\n);"
+    cur.execute(create_table_query)
+
+    # Generate column names and placeholders
+    columns = ', '.join(table_as_df.columns)
+    placeholders = ', '.join(['%s'] * len(table_as_df.columns))
+    updates = ', '.join([f"{col}=EXCLUDED.{col}" for col in table_as_df.columns if col != pk])
+
+    query = f"""
+    INSERT INTO {table_name} ({columns})
+    VALUES ({placeholders})
+    ON CONFLICT ({pk})
+    DO UPDATE SET {updates}
+    """
+
+    execute_batch(cur, query, table_as_df.values.tolist())
+    connection.commit()
+    cur.close()
+
 
 
 
@@ -10,29 +58,48 @@ now = datetime.now()
 today_year = now.year
 today_date = now.strftime("%Y-%m-%d")
 
-#need events dim
-
-#circuits
-resp = requests.get(f"https://api.jolpi.ca/ergast/f1/circuits/?format=json&limit=100")
-print(resp.json()["MRData"]["CircuitTable"]["Circuits"])
-#use info for circuits dim
-
-##get races to find what round we are in
+#events
 resp = requests.get(f"https://api.jolpi.ca/ergast/f1/{today_year}/races/?format=json&limit=100")
 json = resp.json()
-races = json["MRData"]["RaceTable"]["Races"]
-races_complete = [race for race in races if race["date"] <= today_date]
-current_round = max(race["round"] for race in races_complete) if races_complete else None
+events = json["MRData"]["RaceTable"]["Races"]
+events_df = pd.DataFrame(events)
+events_df["circuit_id"] = events_df["Circuit"].apply(lambda col_value: col_value.get("circuitId") if isinstance(col_value, dict) else None)
+events_df.drop(columns = [
+    "Circuit", 
+    "FirstPractice", 
+    "SecondPractice", 
+    "ThirdPractice", 
+    "Qualifying", 
+    "Sprint", 
+    "SprintQualifying"
+    ], 
+    inplace = True
+    )
+events_df["event_id"] = (
+    events_df["season"].astype(str) +
+    "-R" +
+    events_df["round"].astype(str).str.zfill(3)
+)
+# print(events_df.columns)
+update_table(table_as_df=events_df, table_name="dim_events", pk="event_id")
+#circuits
+# resp = requests.get(f"https://api.jolpi.ca/ergast/f1/circuits/?format=json&limit=100")
+# print(resp.json()["MRData"]["CircuitTable"]["Circuits"])
+# #use info for circuits dim
 
-#constructors
-resp = requests.get(f"https://api.jolpi.ca/ergast/f1/{today_year}/{current_round}/constructorstandings/?format=json&limit=100")
-print(resp.json()["MRData"]["StandingsTable"]["StandingsLists"][0]["ConstructorStandings"])
-#use info for constructors dim
+# ##get races to find what round we are in
+# events_complete = [event for event in events if event["date"] <= today_date]
+# current_round = max(event["round"] for event in events_complete) if events_complete else None
 
-#drivers (driverid on jolpi matches DriverID on fastf1)
-resp = requests.get(f"https://api.jolpi.ca/ergast/f1/{today_year}/{current_round}/driverstandings/?format=json&limit=100")
-print(resp.json()["MRData"]["StandingsTable"]["StandingsLists"][0]["DriverStandings"])
-#use info for driver dim
+# #constructors
+# resp = requests.get(f"https://api.jolpi.ca/ergast/f1/{today_year}/{current_round}/constructorstandings/?format=json&limit=100")
+# print(resp.json()["MRData"]["StandingsTable"]["StandingsLists"][0]["ConstructorStandings"])
+# #use info for constructors dim
+
+# #drivers (driverid on jolpi matches DriverID on fastf1)
+# resp = requests.get(f"https://api.jolpi.ca/ergast/f1/{today_year}/{current_round}/driverstandings/?format=json&limit=100")
+# print(resp.json()["MRData"]["StandingsTable"]["StandingsLists"][0]["DriverStandings"])
+# #use info for driver dim
 
 #date dim
 
