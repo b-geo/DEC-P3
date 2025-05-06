@@ -11,14 +11,18 @@ import pandas as pd
 #    'Session5DateUtc', 'F1ApiSupport']
 events = fastf1.get_event_schedule(year = 2025)
 round_numbers = events["RoundNumber"]
+session = fastf1.get_session(2025, "Australia", "R")
+session.load()
+dim_driver = session.results
+print(dim_driver)
 
-for round_number in round_numbers[1:2]:
-    session = fastf1.get_session(2025, round_number, "R")
-    session.load()
-    dim_driver = session.results[1:3]
-    for driver in dim_driver["Abbreviation"]:
-        last_lap = session.laps.groupby("Driver")["LapNumber"].max().reset_index() #not every person has all laps
-        print(driver, last_lap)
+# for round_number in round_numbers[1:2]:
+#     session = fastf1.get_session(2025, round_number, "R")
+#     session.load()
+#     dim_driver = session.results[1:3]
+#     for driver in dim_driver["Abbreviation"]:
+#         last_lap = session.laps.groupby("Driver")["LapNumber"].max().reset_index() #not every person has all laps
+#         print(driver, last_lap)
         # laps = session.laps.pick_drivers([driver])
         # should then go for each driver, each lap get tele
         # get laps range for driver then do get tele which is for a lap and driver

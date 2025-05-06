@@ -53,3 +53,4 @@ S3 via Trino (for historical analysis)
 
 - i have used IO manager in dagster so that storage location of raw can be agnostic
 - using trino cloud (starbust) because limited time
+- sacrificed nice code and layout for cool stuff
