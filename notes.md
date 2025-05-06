@@ -38,3 +38,18 @@ Preset connects to:
 PostgreSQL (for real-time panels)
 
 S3 via Trino (for historical analysis)
+
+# FOR DIMS
+- extract with python (And transform)
+- upsert to postgres
+- dbt to transform and go to snowflake
+- dbt for data quality tests
+- need streaming transformations
+- need dependancy dag - dagster
+
+- stream (python producer), to transform stream (confluent), to store postgres, then either preset grabs or custom dashboard
+- python grab data, to postgres as raw, to snowflake via airbyte,  dbt to model in snowflake, preset grabs from snowflake
+- all set up with dagster
+
+- i have used IO manager in dagster so that storage location of raw can be agnostic
+- using trino cloud (starbust) because limited time
