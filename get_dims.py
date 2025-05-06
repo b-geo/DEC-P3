@@ -1,18 +1,42 @@
 """Jolpi API requests"""
-
+#circuits, constructors, 
 import requests
+from datetime import datetime
+
+
+
+#get year we are in
+now = datetime.now()
+today_year = now.year
+today_date = now.strftime("%Y-%m-%d")
+
+#need events dim
 
 #circuits
-# resp = requests.get("https://api.jolpi.ca/ergast/f1/circuits/?format=json&limit=100")
-# print(resp.json()["MRData"]["CircuitTable"]["Circuits"])
+resp = requests.get(f"https://api.jolpi.ca/ergast/f1/circuits/?format=json&limit=100")
+print(resp.json()["MRData"]["CircuitTable"]["Circuits"])
+#use info for circuits dim
+
+##get races to find what round we are in
+resp = requests.get(f"https://api.jolpi.ca/ergast/f1/{today_year}/races/?format=json&limit=100")
+json = resp.json()
+races = json["MRData"]["RaceTable"]["Races"]
+races_complete = [race for race in races if race["date"] <= today_date]
+current_round = max(race["round"] for race in races_complete) if races_complete else None
 
 #constructors
-resp = requests.get("https://api.jolpi.ca/ergast/f1/2025/constructorstandings/?format=json&limit=100")
-print(resp.json())
+resp = requests.get(f"https://api.jolpi.ca/ergast/f1/{today_year}/{current_round}/constructorstandings/?format=json&limit=100")
+print(resp.json()["MRData"]["StandingsTable"]["StandingsLists"][0]["ConstructorStandings"])
+#use info for constructors dim
 
 #drivers (driverid on jolpi matches DriverID on fastf1)
-resp = requests.get("https://api.jolpi.ca/ergast/f1/2025/driverstandings/?format=json&limit=100")
-print(resp.json())
+resp = requests.get(f"https://api.jolpi.ca/ergast/f1/{today_year}/{current_round}/driverstandings/?format=json&limit=100")
+print(resp.json()["MRData"]["StandingsTable"]["StandingsLists"][0]["DriverStandings"])
+#use info for driver dim
+
+#date dim
+
+# fact events and fact laps, linked by event id
 
 
 # """
