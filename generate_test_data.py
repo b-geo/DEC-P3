@@ -43,8 +43,15 @@ for driver in drivers[1:2]:
         final_lap_data = driver_tele_data.drop(columns = ["Time", "Source"])
         session_telemetry = pd.concat([session_telemetry, final_lap_data], axis = 0, ignore_index = True)
 
-with open('f1_data.jsonl', 'w', encoding = "utf-8") as file:
-    file.write(session_telemetry.to_json(orient='records', lines=True))      
+session_telemetry.sort_values(by = "Date", inplace = True)
+session_telemetry["date_delta"] = session_telemetry["Date"] \
+    .diff() \
+    .fillna(pd.Timedelta(seconds=0)) \
+    .dt.total_seconds() * 1000
+session_telemetry["date_delta"] =session_telemetry["date_delta"].round(0).astype(int)
+print(session_telemetry.columns)
+# with open('f1_data.jsonl', 'w', encoding = "utf-8") as file:
+#     file.write(session_telemetry.to_json(orient='records', lines=True))      
 
 
 
