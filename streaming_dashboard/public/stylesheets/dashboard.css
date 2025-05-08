@@ -1,0 +1,16 @@
+#track-container {
+  width: 100%;
+  height: 100vh;
+  position: relative;
+  background: #333;
+}
+.car {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 8px;
+  text-align: center;
+  color: white;
+}
