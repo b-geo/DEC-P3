@@ -53,3 +53,19 @@ S3 via Trino (for historical analysis)
 
 - i have used IO manager in dagster so that storage location of raw can be agnostic
 - using trino cloud (starbust) because limited time
+- sacrificed nice code and layout for cool stuff
+
+dagster can do the initial api calls!
+
+- really need to account for lack of values in response from api. raise errors
+- i only did constructors and drivers for current season, would hit other endpoint in prod
+
+PLAN
+- DAGSTER INITIATES API CALLS
+- MOVE TO SNOWFLAKE STAGING
+- MAKE CHANGES WITH DBT
+- SERVE PRESET
+
+- PYTHON AS PRODUCER FOR TELEMETRY
+- TO CONFLUENT KAFKA
+- CONSUMED BY DASHBOARD AND CONSUMED BY SNOWFLAKE
