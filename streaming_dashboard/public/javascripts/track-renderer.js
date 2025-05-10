@@ -27,6 +27,43 @@ document.addEventListener('DOMContentLoaded', () => {
         '#FFFFFF', // White
         '#000000', // Black
     ];
+
+    const driver_team = {
+        "ALB": "williams",
+        "ALO": "aston_martin",
+        "ANT": "mercedes",
+        "BEA": "haas",
+        "BOR": "sauber",
+        "DOO": "alpine",
+        "GAS": "alpine",
+        "HAD": "rb",
+        "HAM": "ferrari",
+        "HUL": "sauber",
+        "LAW": "rb",
+        "LEC": "ferrari",
+        "NOR": "mclaren",
+        "OCO": "haas",
+        "PIA": "mclaren",
+        "RUS": "mercedes",
+        "SAI": "williams",
+        "STR": "aston_martin",
+        "TSU": "red_bull",
+        "VER": "red_bull"
+      }
+    const team_colour = {
+        "alpine": ["#00174c", "#fe88bd"], 
+        "aston_martin": ["07565a", "#c5ce5e"], 
+        "ferrari": ["#aa1e1c", "#fdea18"], 
+        "haas": ["#e7e7e9", "#d6021f"], 
+        "mclaren": ["#272b32", "#000000"], 
+        "mercedes": ["#002420", "#08bdc9"], 
+        "rb": ["#e5e6f2", "#1c67cc"],  
+        "red_bull": ["#1f2737", "#e20620"], 
+        "sauber": ["#8bd495", "#272b30"], 
+        "williams": ["#1868dc", "#000000"]
+    }
+
+
     
     // Set canvas dimensions based on container size
     function setCanvasDimensions() {
@@ -217,7 +254,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.arc(canvasPos.x, canvasPos.y, carRadius, 0, Math.PI * 2);
             ctx.fillStyle = car.color;
             ctx.fill();
-            ctx.strokeStyle = '#000';
+            ctx.strokeStyle = car.line;
             ctx.lineWidth = 1;
             ctx.stroke();
             
@@ -282,13 +319,14 @@ document.addEventListener('DOMContentLoaded', () => {
             if (data.Status === "OnTrack") {
                 // If this is a new car, assign a color
                 if (!cars[driverId]) {
-                    const colorIndex = Object.keys(cars).length % carColors.length;
-                    const carColor = carColors[colorIndex];
+                    const dt = driver_team[driverId]
+                    const tc = team_colour[dt];
                     
                     cars[driverId] = {
                         x: x,
                         y: y,
-                        color: carColor,
+                        color: tc[0],
+                        line: tc[1],
                         speed: data.Speed,
                         lap: data.Lap,
                         lastUpdate: Date.now()
@@ -340,6 +378,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const colorBox = document.createElement('div');
             colorBox.className = 'car-color';
             colorBox.style.backgroundColor = car.color;
+            colorBox.style.borderColor = car.line;
             
             const driverText = document.createElement('span');
             driverText.textContent = driverId;
