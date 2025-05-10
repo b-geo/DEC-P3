@@ -61,7 +61,7 @@ canvas {
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  border: 1px solid #333;
+  border: 2px solid;
   margin-right: 5px;
 }
 
