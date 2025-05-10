@@ -1,0 +1,30 @@
+extends layout
+
+block head
+  title F1
+  link(rel="stylesheet", href="/stylesheets/dashboard.css")
+
+block content
+  .dashboard-header
+    h1= trackName
+    .session-info
+      span#session-time 00:00:00
+      span#lap-count Lap 1/57
+
+  #track-container
+
+  .telemetry-panel
+    #selected-driver
+      h2 No driver selected
+      .telemetry-data
+        .data-item
+          span.label Speed:
+          span.value#speed 0
+          span.unit km/h
+        .data-item
+          span.label RPM:
+          span.value#rpm 0
+
+block scripts
+  script(src="/socket.io/socket.io.js")
+  script(src="/javascripts/track-renderer.js")
