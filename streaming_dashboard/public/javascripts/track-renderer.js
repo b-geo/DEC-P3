@@ -6,12 +6,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const legendEl = document.getElementById('legend');
     const leaderboardBody = document.getElementById('leaderboardBody');
     const connectionStatus = document.getElementById('connectionStatus');
+    const socket = io();
     
     let trackCoordinates = [];
     let trackData = null;
     let cars = {}; // Store car positions: { carId: { x, y, color } }
     let animationFrameId = null;
-    let socket;
+    
     
     // Define some car colors
     const carColors = [
@@ -260,11 +261,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     // Connect to WebSocket server
-    function connectWebSocket() {
-        // Connect to the same host with socket.io
-        const socket = io('http://localhost:4000');
-
-        
+    function connectWebSocket() {       
         // Update connection status when connected
         socket.on('connect', () => {
             connectionStatus.textContent = 'Connected';

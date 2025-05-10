@@ -9,6 +9,14 @@ var debug = require('debug')('streaming-dashboard:server');
 var http = require('http');
 
 /**
+ * Websocket
+ */
+const socketIo = require('socket.io');
+const startConsumer = require('./kafka/consumer');
+const { handleConnection } = require('./websocket/handlers');
+const driverPositions = require('./websocket/state');
+
+/**
  * Get port from environment and store in Express.
  */
 
@@ -20,6 +28,19 @@ app.set('port', port);
  */
 
 var server = http.createServer(app);
+
+// Start WebSocket server
+const io = socketIo(server, {
+    cors: {
+    origin: "*" // Adjust for production!
+    }
+});
+io.on('connection', (socket) => {
+    handleConnection(socket, driverPositions);
+});
+
+// Start Kafka consumer
+startConsumer(io).catch(console.error);
 
 /**
  * Listen on provided port, on all network interfaces.
