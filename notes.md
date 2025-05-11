@@ -72,6 +72,7 @@ PLAN
 
 - i have partition by driverid, so that messages are in correct order
 
+
 NEXT
 - python producer can be manual not cloud hosted
 - nodejs webstit hosted
@@ -82,3 +83,4 @@ NEXT
 - preset basic stuff - is matplot lib enough?? is streaming website enough?
 - CI/CD need to learn!
 - SQLFluff linting with CICD - gitlab style guide might use it?
+- NEED to use .ENV
