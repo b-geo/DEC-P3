@@ -69,3 +69,18 @@ PLAN
 - PYTHON AS PRODUCER FOR TELEMETRY
 - TO CONFLUENT KAFKA
 - CONSUMED BY DASHBOARD AND CONSUMED BY SNOWFLAKE
+
+- i have partition by driverid, so that messages are in correct order
+
+
+NEXT
+- python producer can be manual not cloud hosted
+- nodejs webstit hosted
+- dagster for api calls to snowflake
+- dbt snowflake transform
+    - slowly changing dimensions
+    - data quality tests with dbt
+- preset basic stuff - is matplot lib enough?? is streaming website enough?
+- CI/CD need to learn!
+- SQLFluff linting with CICD - gitlab style guide might use it?
+- NEED to use .ENV
