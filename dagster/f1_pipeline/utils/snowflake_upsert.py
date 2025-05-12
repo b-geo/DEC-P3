@@ -9,7 +9,7 @@ def upsert_to_snowflake(df, target_table, conn, context, merge_keys, pk):
     temp_table = f"temp_{target_table}".upper()
     target_table = target_table.upper()
     # write the DataFrame to a temporary table
-    write_pandas(conn, df, temp_table, auto_create_table=True, overwrite=True)
+    write_pandas(conn, df, temp_table, auto_create_table=True, overwrite=True, use_logical_type=True)
 
     column_defs = []
     for column in df.columns:
