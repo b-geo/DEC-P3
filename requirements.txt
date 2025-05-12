@@ -1,4 +1,8 @@
 pandas==2.2.2
 fastf1==3.5.3
 confluent_kafka==2.10.0
-psycopg2==2.9.10
+dbt-core==1.9.4
+dbt-snowflake==1.9.4
+dagster==1.10.11
+dagster-snowflake-pandas==0.26.14
+#fastf1 says it needs websockets <14 but works with 15 as dagster has

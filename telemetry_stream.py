@@ -14,13 +14,14 @@ producer = Producer(conf)
 
 def acked(err, msg):
     if err is not None:
-        print("Failed to deliver message: %s: %s" % (str(msg.value()), err))
+        print(f"Failed to deliver message: {msg.value()}: {err}")
     else:
-        print("Message produced: %s" % (str(msg.value())))
+        print(f"Message sent to partition {msg.partition()} (Driver ID: {msg.key().decode('utf-8')}) at offset {msg.offset()}")
 
 def send_telemetry(message, producer):
     producer.produce(
         topic='f1_positions',
+        key= str(message["Driver"]).encode('utf-8'),
         value=json.dumps({
             "X": message["X"],
             "Y": message["Y"],

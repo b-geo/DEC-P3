@@ -6,6 +6,7 @@ This is then used as the source to replay a datastream to Kafka.
 import fastf1
 import pandas as pd
 
+fastf1.Cache.set_disabled()
 # events = fastf1.get_event_schedule(year = 2025)
 # round_numbers = events["RoundNumber"]
 session = fastf1.get_session(2025, "Australia", "R")
