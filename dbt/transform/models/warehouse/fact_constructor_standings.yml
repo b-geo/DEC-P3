@@ -1,0 +1,29 @@
+version: 2
+
+models:
+  - name: fact_constructor_standings
+    columns:
+
+      - name: sk_constructor
+        description: Foreign key to the constructor dimension table
+        tests:
+          - not_null
+ 
+      - name: standings_season
+        description: The season this constructor standing is for
+        tests:
+          - not_null
+
+      - name: standings_round
+        description: The round this constructor standing is for
+        tests:
+          - not_null
+
+      - name: constructor_position
+        description: Constructor position this season up until this round
+
+      - name: constructor_points
+        description: Constructor points this season up until this round
+
+      - name: constructor_wins
+        description: Constructor wins this season up until this round

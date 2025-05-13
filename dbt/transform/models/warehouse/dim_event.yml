@@ -1,7 +1,7 @@
 version: 2
 
 models:
-  - name: dim_events
+  - name: dim_event
     columns:
       - name: sk_event
         description: The surrogate key of the event_id

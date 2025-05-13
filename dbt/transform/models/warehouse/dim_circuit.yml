@@ -1,7 +1,7 @@
 version: 2
 
 models:
-  - name: dim_circuits
+  - name: dim_circuit
     columns:
       - name: sk_circuit
         description: The surrogate key of the circuit_id

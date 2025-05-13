@@ -92,6 +92,8 @@ class JolpiAPI:
             "Constructor"
         ]
         cons_df = self._json_col_conv(df = cons_df, columns = cols_for_json)
+        cons_df["round"] = self.current_round
+        cons_df["season"] = self.today_year
         return cons_df
 
     def _get_driver_standings(self) -> pd.DataFrame:
@@ -106,4 +108,6 @@ class JolpiAPI:
             "Constructors"
         ]
         drivers_df = self._json_col_conv(df = drivers_df, columns = cols_for_json)
+        drivers_df["round"] = self.current_round
+        drivers_df["season"] = self.today_year
         return drivers_df
