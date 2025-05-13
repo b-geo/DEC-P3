@@ -8,7 +8,7 @@
 }}
 
 select
-	{{ dbt_utils.generate_surrogate_key(['parse_json(stg_constructor_standings.constructor):"constructorid"::varchar']) }} as sk_constructor,
+	{{ dbt_utils.generate_surrogate_key(['parse_json(stg_constructor_standings.constructor):"constructorId"::varchar']) }} as sk_constructor,
 	stg_constructor_standings.season as standings_season,
 	stg_constructor_standings.round as standings_round,
 	stg_constructor_standings.position as constructor_position,
@@ -16,5 +16,5 @@ select
 	to_number(stg_constructor_standings.wins) as constructor_wins,
 from {{ source("f1_staging", "stg_constructor_standings") }} as stg_constructor_standings
 {% if is_incremental() %}
-    where stg_driver_standings.season = year(current_date())
+    where stg_constructor_standings.season = year(current_date())
 {% endif %}

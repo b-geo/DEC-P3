@@ -16,7 +16,7 @@ def acked(err, msg):
     if err is not None:
         print(f"Failed to deliver message: {msg.value()}: {err}")
     else:
-        print(f"Message sent to partition {msg.partition()} (Driver ID: {msg.key().decode('utf-8')}) at offset {msg.offset()}")
+        print(f"Message sent to partition {msg.partition()} (Driver ID: {msg.key().decode('utf-8')}) Topic: {msg.topic()}")
 
 def send_telemetry(message, producer):
     producer.produce(
@@ -72,7 +72,7 @@ def send_laps(message, producer):
             "FreshTyre": message["FreshTyre"],
             "Team": message["Team"],
             "LapStartTime": message["LapStartTime"],
-            "LapStartDate": message["LapStartDatem"],
+            "LapStartDate": message["LapStartDate"],
             "TrackStatus": message["TrackStatus"],
             "Position": message["Position"],
         }),
@@ -81,18 +81,18 @@ def send_laps(message, producer):
     producer.poll(1)
 
 
-# with open("tele_data.jsonl", "r", encoding = "utf-8") as file:
+# with open("laps_data.jsonl", "r", encoding = "utf-8") as file:
 #     for row in file:
 #         data = json.loads(row.strip())
-#         wait_time = data["date_delta"]
-#         time.sleep(wait_time / 1000.0) 
-#         send_telemetry(message = data, producer = producer)
+#         time.sleep(1) 
+#         send_laps(message = data, producer = producer)
 
-with open("laps_data.jsonl", "r", encoding = "utf-8") as file:
+with open("tele_data.jsonl", "r", encoding = "utf-8") as file:
     for row in file:
         data = json.loads(row.strip())
-        time.sleep(1) 
-        send_laps(message = data, producer = producer)
+        wait_time = data["date_delta"]
+        time.sleep(wait_time / 1000.0) 
+        send_telemetry(message = data, producer = producer)
 
 
 producer.flush()

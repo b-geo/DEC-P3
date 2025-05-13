@@ -8,8 +8,8 @@
 }}
 
 select
-	{{ dbt_utils.generate_surrogate_key(['parse_json(stg_driver_standings.driver):"driverid"::varchar']) }} as sk_driver,
-	{{ dbt_utils.generate_surrogate_key(['parse_json(stg_driver_standings.constructors):"constructorid"::varchar']) }} as sk_constructor,
+	{{ dbt_utils.generate_surrogate_key(['parse_json(stg_driver_standings.driver):"driverId"::varchar']) }} as sk_driver,
+	{{ dbt_utils.generate_surrogate_key(['parse_json(stg_driver_standings.constructors):"constructorId"::varchar']) }} as sk_constructor,
 	stg_driver_standings.season as standings_season,
 	stg_driver_standings.round as standings_round,
 	stg_driver_standings.position as driver_position,

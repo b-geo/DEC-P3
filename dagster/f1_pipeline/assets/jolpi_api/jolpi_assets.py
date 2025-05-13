@@ -1,5 +1,4 @@
 from f1_pipeline.utils.snowflake_upsert import upsert_to_snowflake
-import pandas as pd
 from dagster import asset, OpExecutionContext
 from .connectors.jolpi_api import JolpiAPI
 

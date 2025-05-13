@@ -93,3 +93,10 @@ set up confluent
 new connector snowflake
 add snowflake details
 create user for confluent as shown here: https://docs.confluent.io/cloud/current/connectors/cc-snowflake-sink/cc-snowflake-sink.html?ajs_aid=15f7888d-2eec-438c-9c48-1f118dba39e4&ajs_uid=5710910#cc-snowflake-db-sink-gen-key-pair
+
+
+FOLDER STRUCTURE
+- kafka producer
+- streaming dashboard
+- orchestration
+- transformation

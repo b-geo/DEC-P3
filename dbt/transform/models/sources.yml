@@ -8,5 +8,6 @@ sources:
       - name: stg_constructor_standings
       - name: stg_driver_standings
       - name: stg_telemetry
+      - name: stg_laps
 
 

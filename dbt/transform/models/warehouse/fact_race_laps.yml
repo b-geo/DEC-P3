@@ -1,7 +1,7 @@
 version: 2
 
 models:
-  - name: fact_driver_standings
+  - name: fact_race_laps
     columns:
       - name: sk_driver
         description: Foreign key to the driver dimension table
@@ -13,21 +13,18 @@ models:
         tests:
           - not_null
  
-      - name: standings_season
-        description: The season this driver standing is for
+      - name: sk_event
+        description: Foreign key to the event dimension table
         tests:
           - not_null
 
-      - name: standings_round
-        description: The round this driver standing is for
+      - name: sk_circuit
+        description: Foreign key to the circuit dimension table
         tests:
           - not_null
 
-      - name: driver_position
-        description: Driver position this season up until this round
+      - name: lap_number
+        description: The lap number of the race
 
-      - name: driver_points
-        description: Driver points this season up until this round
-
-      - name: driver_wins
-        description: Driver wins this season up until this round
+      - name: last_updated
+        description: The last updated date for that row
