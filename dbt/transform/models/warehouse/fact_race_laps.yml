@@ -1,0 +1,33 @@
+version: 2
+
+models:
+  - name: fact_driver_standings
+    columns:
+      - name: sk_driver
+        description: Foreign key to the driver dimension table
+        tests:
+          - not_null
+
+      - name: sk_constructor
+        description: Foreign key to the constructor dimension table
+        tests:
+          - not_null
+ 
+      - name: standings_season
+        description: The season this driver standing is for
+        tests:
+          - not_null
+
+      - name: standings_round
+        description: The round this driver standing is for
+        tests:
+          - not_null
+
+      - name: driver_position
+        description: Driver position this season up until this round
+
+      - name: driver_points
+        description: Driver points this season up until this round
+
+      - name: driver_wins
+        description: Driver wins this season up until this round

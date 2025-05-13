@@ -42,19 +42,57 @@ def send_telemetry(message, producer):
             "DriverAhead": message["DriverAhead"],
             "DistanceToDriverAhead": message["DistanceToDriverAhead"],
             "date_delta": message["date_delta"],
-            "timestamp": int(time.time() * 1000)
+        }),
+        callback=acked
+    )
+    producer.poll(1)
+
+def send_laps(message, producer):
+    producer.produce(
+        topic='f1_laps',
+        key= str(message["Driver"]).encode('utf-8'),
+        value=json.dumps({
+            "Driver": message["Driver"],
+            "LapTime": message["LapTime"],
+            "LapNumber": message["LapNumber"],
+            "PitOutTime": message["PitOutTime"],
+            "PitInTime": message["PitInTime"],
+            "Sector1Time": message["Sector1Time"],
+            "Sector2Time": message["Sector2Time"],
+            "Sector3Time": message["Sector3Time"],
+            "Sector1SessionTime": message["Sector1SessionTime"],
+            "Sector2SessionTime": message["Sector2SessionTime"],
+            "Sector3SessionTime": message["Sector3SessionTime"],
+            "SpeedI1": message["SpeedI1"],
+            "SpeedI2": message["SpeedI2"],
+            "SpeedFL": message["SpeedFL"],
+            "SpeedST": message["SpeedST"],
+            "Compound": message["Compound"],
+            "TyreLife": message["TyreLife"],
+            "FreshTyre": message["FreshTyre"],
+            "Team": message["Team"],
+            "LapStartTime": message["LapStartTime"],
+            "LapStartDate": message["LapStartDatem"],
+            "TrackStatus": message["TrackStatus"],
+            "Position": message["Position"],
         }),
         callback=acked
     )
     producer.poll(1)
 
 
-with open("f1_data.jsonl", "r", encoding = "utf-8") as file:
+# with open("tele_data.jsonl", "r", encoding = "utf-8") as file:
+#     for row in file:
+#         data = json.loads(row.strip())
+#         wait_time = data["date_delta"]
+#         time.sleep(wait_time / 1000.0) 
+#         send_telemetry(message = data, producer = producer)
+
+with open("laps_data.jsonl", "r", encoding = "utf-8") as file:
     for row in file:
         data = json.loads(row.strip())
-        wait_time = data["date_delta"]
-        time.sleep(wait_time / 1000.0) 
-        send_telemetry(message = data, producer = producer)       
+        time.sleep(1) 
+        send_laps(message = data, producer = producer)
 
 
 producer.flush()

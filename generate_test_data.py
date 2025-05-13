@@ -14,7 +14,33 @@ session.load()
 results = session.results
 drivers = results["Abbreviation"].unique().tolist()
 laps = session.laps
-column_types = {
+laps_column_types = {
+        'Driver': 'object',
+        'LapTime': 'timedelta64[ns]',
+        'LapNumber': 'float64',
+        'PitOutTime': 'timedelta64[ns]',
+        'PitInTime': 'timedelta64[ns]',
+        'Sector1Time': 'timedelta64[ns]',
+        'Sector2Time': 'timedelta64[ns]',
+        'Sector3Time': 'timedelta64[ns]',
+        'Sector1SessionTime': 'timedelta64[ns]',
+        'Sector2SessionTime': 'timedelta64[ns]',
+        'Sector3SessionTime': 'timedelta64[ns]',
+        'SpeedI1': 'float64',
+        'SpeedI2': 'float64',
+        'SpeedFL': 'float64',
+        'SpeedST': 'float64',
+        'Compound': 'object',
+        'TyreLife': 'float64',
+        'FreshTyre': 'object',
+        'Team': 'object',
+        'LapStartTime': 'timedelta64[ns]',
+        'LapStartDate': 'datetime64[ns]',
+        'TrackStatus': 'object',
+        'Position': 'float64'
+    }
+session_laps = pd.DataFrame(columns = laps_column_types.keys()).astype(laps_column_types)
+telemetry_column_types = {
     'Date': 'datetime64[ns]', 
     'SessionTime': 'timedelta64[ns]', 
     'DriverAhead': 'object', 
@@ -32,17 +58,31 @@ column_types = {
     'Y': 'float64', 
     'Z': 'float64', 
     'Lap': 'int64', 
-    'Driver': 'object'}
-session_telemetry = pd.DataFrame(columns = column_types.keys()).astype(column_types)
+    'Driver': 'object'
+    }
+session_telemetry = pd.DataFrame(columns = telemetry_column_types.keys()).astype(telemetry_column_types)
 for driver in drivers[1:2]:
     driver_laps = laps[laps["Driver"] == driver]["LapNumber"].unique().tolist()
     for lap in driver_laps[1:2]:
         driver_lap_data = laps.pick_drivers(driver)
+        final_laps_data = driver_lap_data.drop(columns = [
+            "Time",
+            "DriverNumber", 
+            'Stint', 
+            'IsPersonalBest', 
+            'Deleted', 
+            'DeletedReason', 
+            'FastF1Generated', 
+            'IsAccurate'
+        ])
+        session_laps = pd.concat([session_laps, final_laps_data], axis = 0, ignore_index = True)
         driver_tele_data = driver_lap_data.get_telemetry()
         driver_tele_data["Lap"] = int(lap)
         driver_tele_data["Driver"] = str(driver)
-        final_lap_data = driver_tele_data.drop(columns = ["Time", "Source"])
-        session_telemetry = pd.concat([session_telemetry, final_lap_data], axis = 0, ignore_index = True)
+        final_tele_laps_data = driver_tele_data.drop(columns = ["Time", "Source"])
+        session_telemetry = pd.concat([session_telemetry, final_tele_laps_data], axis = 0, ignore_index = True)
+
+session_laps.sort_values(by = "LapNumber", inplace = True)
 
 session_telemetry.sort_values(by = "Date", inplace = True)
 session_telemetry["date_delta"] = session_telemetry["Date"] \
@@ -50,62 +90,9 @@ session_telemetry["date_delta"] = session_telemetry["Date"] \
     .fillna(pd.Timedelta(seconds=0)) \
     .dt.total_seconds() * 1000
 session_telemetry["date_delta"] =session_telemetry["date_delta"].round(0).astype(int)
-print(session_telemetry.columns)
-# with open('f1_data.jsonl', 'w', encoding = "utf-8") as file:
-#     file.write(session_telemetry.to_json(orient='records', lines=True))      
 
+with open('laps_data.jsonl', 'w', encoding = "utf-8") as file:
+    file.write(session_laps.to_json(orient='records', lines=True))
 
-
-# //Tele data
-# "X": "float64",
-# "Y": "float64",
-# "Z": "float64",
-# "Status": str,
-# "Speed": "float64",
-# "RPM": "float64",
-# "Throttle": "float64",
-# "Brake": "bool",
-# "DRS": "int",
-# "nGear": "int",
-# "Source": str,
-# "Date": "datetime64[ns]",
-# "Time": "timedelta64[ns]",
-# "SessionTime": "timedelta64[ns]",
-# "Distance": "float64",
-# "RelativeDistance": "float64",
-# "DifferentialDistance": "float64",
-# "DriverAhead": "int",
-# "DistanceToDriverAhead": "float64"
-
-# //Laps data
-# "Time": "timedelta64[ns]",
-# "Driver": str,
-# "DriverNumber": str,
-# "LapTime": "timedelta64[ns]",
-# "LapNumber": "float64",
-# "Stint": "float64",
-# "PitOutTime": "timedelta64[ns]",
-# "PitInTime": "timedelta64[ns]",
-# "Sector1Time": "timedelta64[ns]",
-# "Sector2Time": "timedelta64[ns]",
-# "Sector3Time": "timedelta64[ns]",
-# "Sector1SessionTime": "timedelta64[ns]",
-# "Sector2SessionTime": "timedelta64[ns]",
-# "Sector3SessionTime": "timedelta64[ns]",
-# "SpeedI1": "float64",
-# "SpeedI2": "float64",
-# "SpeedFL": "float64",
-# "SpeedST": "float64",
-# "IsPersonalBest": bool,
-# "Compound": str,
-# "TyreLife": "float64",
-# "FreshTyre": bool,
-# "Team": str,
-# "LapStartTime": "timedelta64[ns]",
-# "LapStartDate": "datetime64[ns]",
-# "TrackStatus": str,
-# "Position": "float64",  # need to support NaN
-# "Deleted": Optional[bool],
-# "DeletedReason": str,
-# "FastF1Generated": bool,
-# "IsAccurate": bool
+with open('tele_data.jsonl', 'w', encoding = "utf-8") as file:
+    file.write(session_telemetry.to_json(orient='records', lines=True))

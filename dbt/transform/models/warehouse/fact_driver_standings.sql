@@ -3,7 +3,7 @@
         materialized = "incremental",
         unique_key = ["sk_driver", "sk_constructor", "standings_season", "standings_round"],
         incremental_strategy = "merge",
-        merge_update_columns = ["driver_points", "driver_position", "driver_wins", "last_updated"]
+        merge_update_columns = ["driver_points", "driver_position", "driver_wins"]
     )
 }}
 
@@ -17,5 +17,5 @@ select
 	to_number(stg_driver_standings.wins) as driver_wins,
 from {{ source("f1_staging", "stg_driver_standings") }} as stg_driver_standings
 {% if is_incremental() %}
-	where stg_driver_standings.season = extract(year from current_date())
+	where stg_driver_standings.season = year(current_date())
 {% endif %}
