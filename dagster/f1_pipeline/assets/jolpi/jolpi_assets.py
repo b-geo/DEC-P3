@@ -2,12 +2,11 @@ from f1_pipeline.utils.snowflake_upsert import upsert_to_snowflake
 from dagster import asset, OpExecutionContext
 from .connectors.jolpi_api import JolpiAPI
 
-
 api = JolpiAPI()
 
 @asset(
     group_name="f1_staging",
-    required_resource_keys={"snowflake"}
+    required_resource_keys={"snowflake_resource"}
 )
 def stg_events(context) -> None:
     df = api.get_events()
@@ -18,7 +17,7 @@ def stg_events(context) -> None:
 
 @asset(
     group_name="f1_staging",
-    required_resource_keys={"snowflake"}
+    required_resource_keys={"snowflake_resource"}
 )
 def stg_circuits(context: OpExecutionContext) -> None:
     df = api.get_circuits()
@@ -29,7 +28,7 @@ def stg_circuits(context: OpExecutionContext) -> None:
 
 @asset(
     group_name="f1_staging",
-    required_resource_keys={"snowflake"}
+    required_resource_keys={"snowflake_resource"}
 )
 def stg_constructor_standings(context: OpExecutionContext) -> None:
     df =  api.get_constructor_standings()
@@ -39,7 +38,7 @@ def stg_constructor_standings(context: OpExecutionContext) -> None:
 
 @asset(
     group_name="f1_staging",
-    required_resource_keys={"snowflake"}
+    required_resource_keys={"snowflake_resource"}
 )
 def stg_driver_standings(context: OpExecutionContext) -> None:
     df = api.get_driver_standings()

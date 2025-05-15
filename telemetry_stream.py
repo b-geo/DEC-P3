@@ -18,10 +18,10 @@ def acked(err, msg):
     else:
         print(f"Message sent to partition {msg.partition()} (Driver ID: {msg.key().decode('utf-8')}) Topic: {msg.topic()}")
 
-def send_telemetry(message, producer):
+def send_telemetry(message, producer, topic, key):
     producer.produce(
-        topic='f1_positions',
-        key= str(message["Driver"]).encode('utf-8'),
+        topic = topic,
+        key = str(message[key]).encode('utf-8'),
         value=json.dumps({
             "X": message["X"],
             "Y": message["Y"],
@@ -47,14 +47,15 @@ def send_telemetry(message, producer):
     )
     producer.poll(1)
 
-def send_laps(message, producer):
+def send_laps(message, producer, topic, key):
     producer.produce(
-        topic='f1_laps',
-        key= str(message["Driver"]).encode('utf-8'),
+        topic=topic,
+        key= str(message[key]).encode('utf-8'),
         value=json.dumps({
             "Driver": message["Driver"],
             "LapTime": message["LapTime"],
             "LapNumber": message["LapNumber"],
+            "Stint": message["Stint"],
             "PitOutTime": message["PitOutTime"],
             "PitInTime": message["PitInTime"],
             "Sector1Time": message["Sector1Time"],
@@ -81,18 +82,18 @@ def send_laps(message, producer):
     producer.poll(1)
 
 
-# with open("laps_data.jsonl", "r", encoding = "utf-8") as file:
-#     for row in file:
-#         data = json.loads(row.strip())
-#         time.sleep(1) 
-#         send_laps(message = data, producer = producer)
-
-with open("tele_data.jsonl", "r", encoding = "utf-8") as file:
+with open("laps_data.jsonl", "r", encoding = "utf-8") as file:
     for row in file:
         data = json.loads(row.strip())
-        wait_time = data["date_delta"]
-        time.sleep(wait_time / 1000.0) 
-        send_telemetry(message = data, producer = producer)
+        time.sleep(1) 
+        send_laps(message = data, producer = producer, topic = "f1_laps", key = "Driver")
+
+# with open("tele_data.jsonl", "r", encoding = "utf-8") as file:
+#     for row in file:
+#         data = json.loads(row.strip())
+#         wait_time = data["date_delta"]
+#         time.sleep(wait_time / 1000.0) 
+#         send_telemetry(message = data, producer = producer, topic = "f1_positions", key = "Driver")
 
 
 producer.flush()

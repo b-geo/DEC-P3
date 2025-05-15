@@ -62,10 +62,10 @@ telemetry_column_types = {
     'Driver': 'object'
     }
 session_telemetry = pd.DataFrame(columns = telemetry_column_types.keys()).astype(telemetry_column_types)
-for driver in drivers[1:2]:
+for driver in drivers:
     driver_laps = laps[laps["Driver"] == driver]["LapNumber"].unique().tolist()
-    for lap in driver_laps[1:2]:
-        driver_lap_data = laps.pick_drivers(driver)
+    for lap in driver_laps:
+        driver_lap_data = laps.pick_drivers(driver).pick_laps(lap)
         final_laps_data = driver_lap_data.drop(columns = [
             "Time",
             "DriverNumber",
@@ -76,23 +76,23 @@ for driver in drivers[1:2]:
             'IsAccurate'
         ])
         session_laps = pd.concat([session_laps, final_laps_data], axis = 0, ignore_index = True)
-        driver_tele_data = driver_lap_data.get_telemetry()
-        driver_tele_data["Lap"] = int(lap)
-        driver_tele_data["Driver"] = str(driver)
-        final_tele_laps_data = driver_tele_data.drop(columns = ["Time", "Source"])
-        session_telemetry = pd.concat([session_telemetry, final_tele_laps_data], axis = 0, ignore_index = True)
+        # driver_tele_data = driver_lap_data.get_telemetry()
+        # driver_tele_data["Lap"] = int(lap)
+        # driver_tele_data["Driver"] = str(driver)
+        # final_tele_laps_data = driver_tele_data.drop(columns = ["Time", "Source"])
+        # session_telemetry = pd.concat([session_telemetry, final_tele_laps_data], axis = 0, ignore_index = True)
 
 session_laps.sort_values(by = "LapNumber", inplace = True)
 
-session_telemetry.sort_values(by = "Date", inplace = True)
-session_telemetry["date_delta"] = session_telemetry["Date"] \
-    .diff() \
-    .fillna(pd.Timedelta(seconds=0)) \
-    .dt.total_seconds() * 1000
-session_telemetry["date_delta"] =session_telemetry["date_delta"].round(0).astype(int)
+# session_telemetry.sort_values(by = "Date", inplace = True)
+# session_telemetry["date_delta"] = session_telemetry["Date"] \
+#     .diff() \
+#     .fillna(pd.Timedelta(seconds=0)) \
+#     .dt.total_seconds() * 1000
+# session_telemetry["date_delta"] =session_telemetry["date_delta"].round(0).astype(int)
 
 with open('laps_data.jsonl', 'w', encoding = "utf-8") as file:
     file.write(session_laps.to_json(orient='records', lines=True))
 
-with open('tele_data.jsonl', 'w', encoding = "utf-8") as file:
-    file.write(session_telemetry.to_json(orient='records', lines=True))
+# with open('tele_data.jsonl', 'w', encoding = "utf-8") as file:
+#     file.write(session_telemetry.to_json(orient='records', lines=True))

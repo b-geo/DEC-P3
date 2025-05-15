@@ -32,7 +32,7 @@ select
 	stg_laps.record_content:"SpeedST"::number as speed_straight_kmh,
 	stg_laps.record_content:"Compound"::varchar as tyre_compound,
 	stg_laps.record_content:"TyreLife"::number as tyre_life_laps,
-	stg_laps.record_content:"Stint"::number as drivers_stint,
+	stg_laps.record_content:"Stint"::number as driver_stint,
 	to_timestamp((stg_laps.record_content:"LapStartDate"::number) / 1000) as lap_start,
 	to_timestamp((stg_laps.record_metadata:"CreateTime"::number) / 1000) as last_updated
 from {{ source("f1_staging", "stg_laps") }} as stg_laps
