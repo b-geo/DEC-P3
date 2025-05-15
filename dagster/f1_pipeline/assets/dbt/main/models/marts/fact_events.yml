@@ -2,6 +2,10 @@ version: 2
 
 models:
   - name: fact_events
+    config:
+      meta:
+        dagster:
+          group: f1_marts
     columns:
       - name: sk_event
         description: The surrogate key of the event_id

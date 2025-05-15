@@ -2,6 +2,10 @@ version: 2
 
 models:
   - name: race_laps_obt
+    config:
+      meta:
+        dagster:
+          group: f1_presentation
     columns:
       - name: sk_race_laps
         description: The surrogate key of the lap for a race

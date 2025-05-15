@@ -2,8 +2,12 @@ version: 2
 
 models:
   - name: fact_race_laps
+    config:
+      meta:
+        dagster:
+          group: f1_marts
     columns:
-      - name: sk_race_laps
+      - name: sk_race_lap
         description: The surrogate key of the lap for a race
         tests:
           - not_null

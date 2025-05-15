@@ -12,7 +12,7 @@ api = JolpiAPI()
 def stg_events(context) -> None:
     df = api.get_events()
     # Use the connection as a context manager
-    with context.resources.snowflake.get_connection() as conn:
+    with context.resources.snowflake_resource.get_connection() as conn:
         # Ensure you're working with the actual connection object
         upsert_to_snowflake(df, "stg_events", conn, context, merge_keys=["eventid"], pk="eventid")
 
@@ -24,7 +24,7 @@ def stg_events(context) -> None:
 def stg_circuits(context: OpExecutionContext) -> None:
     df = api.get_circuits()
     # Use the connection as a context manager
-    with context.resources.snowflake.get_connection() as conn:
+    with context.resources.snowflake_resource.get_connection() as conn:
         # Ensure you're working with the actual connection object
        upsert_to_snowflake(df, "stg_circuits", conn, context, merge_keys=["circuitid"], pk="circuitid")
 
@@ -35,7 +35,7 @@ def stg_circuits(context: OpExecutionContext) -> None:
 )
 def stg_constructor_standings(context: OpExecutionContext) -> None:
     df =  api.get_constructor_standings()
-    with context.resources.snowflake.get_connection() as conn:
+    with context.resources.snowflake_resource.get_connection() as conn:
         # Ensure you're working with the actual connection object
        upsert_to_snowflake(df, "stg_constructor_standings", conn, context, merge_keys=["constructor"], pk="constructor")
 
@@ -46,6 +46,6 @@ def stg_constructor_standings(context: OpExecutionContext) -> None:
 )
 def stg_driver_standings(context: OpExecutionContext) -> None:
     df = api.get_driver_standings()
-    with context.resources.snowflake.get_connection() as conn:
+    with context.resources.snowflake_resource.get_connection() as conn:
         # Ensure you're working with the actual connection object
        upsert_to_snowflake(df, "stg_driver_standings", conn, context, merge_keys=["driver"], pk="driver")

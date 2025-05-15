@@ -32,6 +32,3 @@ left join {{ ref("dim_circuit") }} as dim_circuit
 	on fact_race_laps.sk_circuit = dim_circuit.sk_circuit
 left join {{ ref("fact_events") }} as fact_events
 	on fact_race_laps.sk_event = fact_events.sk_event
-{% if is_incremental() %}
-	where fact_race_laps.last_updated > (select max(current_table.last_updated) from {{ this }} as current_table)
-{% endif %}

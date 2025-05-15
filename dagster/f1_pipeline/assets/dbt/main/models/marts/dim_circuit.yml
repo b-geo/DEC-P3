@@ -2,6 +2,10 @@ version: 2
 
 models:
   - name: dim_circuit
+    config:
+      meta:
+        dagster:
+          group: f1_marts
     columns:
       - name: sk_circuit
         description: The surrogate key of the circuit_id

@@ -1,20 +1,15 @@
+from dagster import file_relative_path
 from pathlib import Path
+from dagster_dbt import DbtCliResource, load_assets_from_dbt_manifest
 
-from dagster import AssetExecutionContext, asset, file_relative_path, define_asset_job
+DBT_PROJECT_DIR = file_relative_path(__file__, "main")
+MANIFEST_PATH = file_relative_path(__file__, "main/target/manifest.json")
+DBT_TARGET_DIR = file_relative_path(__file__, "main/target")
+DBT_PROFILES_DIR = file_relative_path(__file__, "main")
 
-from dagster_dbt import DbtCliResource, dbt_assets
-
-DBT_PROJECT_DIR = file_relative_path(__file__, "./main")
-MANIFEST_PATH = file_relative_path(__file__, "./main/target/manifest.json")
-DBT_TARGET_DIR = file_relative_path(__file__, "./main/target")
-DBT_PROFILES_DIR = file_relative_path(__file__, "./main")
-
-dbt_resource = DbtCliResource(
-    project_dir=DBT_PROJECT_DIR, 
-    profiles_dir=DBT_PROFILES_DIR, 
-    target_dir=DBT_TARGET_DIR
+dbt_marts = load_assets_from_dbt_manifest(
+    manifest=Path(MANIFEST_PATH),
+    io_manager_key="io_manager",
+    dbt_resource_key="dbt_resource",
+    use_build_command=False
 )
-
-@dbt_assets(manifest= str(MANIFEST_PATH))
-def dbt_marts(context: AssetExecutionContext, dbt_resource: DbtCliResource):
-    yield from dbt_resource.cli(["run"], context=context).stream()

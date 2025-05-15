@@ -2,9 +2,12 @@ version: 2
 
 models:
   - name: fact_constructor_standings
+    config:
+      meta:
+        dagster:
+          group: f1_marts
     columns:
-
-      - name: sk_driver_standing
+      - name: sk_constructor_standing
         description: The surrogate key of constructor's position ath the end of a round for a specific seaosn
         tests:
           - not_null

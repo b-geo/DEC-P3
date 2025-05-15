@@ -2,6 +2,10 @@ version: 2
 
 models:
   - name: dim_driver
+    config:
+      meta:
+        dagster:
+          group: f1_marts
     columns:
       - name: sk_driver
         description: The surrogate key of the driver_id

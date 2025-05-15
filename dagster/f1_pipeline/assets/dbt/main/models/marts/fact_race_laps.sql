@@ -48,6 +48,3 @@ left join {{ ref("fact_events") }} as fact_events
 			fact_events.event_race_date = 
 				dateadd('day', 1, to_date(to_timestamp((stg_laps.record_content:"LapStartDate"::number)/1000)))
 
-{% if is_incremental() %}
-	where to_timestamp((stg_laps.record_metadata:"CreateTime"::number) / 1000) > (select max(current_table.last_updated) from {{ this }} as current_table)
-{% endif %}

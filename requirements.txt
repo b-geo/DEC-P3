@@ -15,3 +15,5 @@ protobuf==5.29.4  # Will install 5.26.4
 
 # pip install -r requirements.txt --no-deps
 # pip install "protobuf>=5.0,<6.0 "
+
+pip install --force-reinstall dbt-core==1.7.13 dbt-snowflake==1.7.4 snowplow-tracker==0.10.0 dagster-dbt==0.22.9

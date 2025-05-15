@@ -1,16 +1,18 @@
 from f1_pipeline.assets import jolpi
 from f1_pipeline.schedules import staging_schedule
-from f1_pipeline.assets.dbt.dbt_assets import dbt_resource, dbt_marts
+from f1_pipeline.assets.dbt.dbt_assets import DBT_PROJECT_DIR, DBT_PROFILES_DIR, dbt_marts
 from dagster_snowflake import snowflake_resource
 from dagster import (
     Definitions,
-    load_assets_from_modules
+    load_assets_from_modules,
+    FilesystemIOManager
 )
+from dagster_dbt import DbtCliResource
 
 jolpi_assets = load_assets_from_modules([jolpi])
 
 defs = Definitions(
-    assets= [*jolpi_assets, dbt_marts],
+    assets= [*jolpi_assets, *dbt_marts],
     schedules=[staging_schedule],
     resources= {"snowflake_resource": 
         snowflake_resource.configured({
@@ -21,6 +23,10 @@ defs = Definitions(
             "warehouse": "COMPUTE_WH",
             "schema": "staging"
         }),
-        "dbt_resource": dbt_resource
+        "dbt_resource": DbtCliResource(
+    project_dir=DBT_PROJECT_DIR,
+    profiles_dir=DBT_PROFILES_DIR
+),
+        "io_manager": FilesystemIOManager(base_dir="/tmp/dagster"),  # or your custom IO manager
     }
 )
