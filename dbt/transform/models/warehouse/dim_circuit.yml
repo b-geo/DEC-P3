@@ -21,8 +21,11 @@ models:
       - name: circuit_url
         description: Wikipedia URL of the circuit
 
-      - name: circuit_location
-        description: JSON formatted location of the circuit
+      - name: circuit_country
+        description: The country in which the circuit is located
+
+      - name: circuit_locality
+        description: The locality (usually state) in which the circuit is located
 
       - name: last_updated
         description: The last updated date for that row

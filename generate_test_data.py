@@ -18,6 +18,7 @@ laps_column_types = {
         'Driver': 'object',
         'LapTime': 'timedelta64[ns]',
         'LapNumber': 'float64',
+        'Stint': 'float64',
         'PitOutTime': 'timedelta64[ns]',
         'PitInTime': 'timedelta64[ns]',
         'Sector1Time': 'timedelta64[ns]',
@@ -67,12 +68,11 @@ for driver in drivers[1:2]:
         driver_lap_data = laps.pick_drivers(driver)
         final_laps_data = driver_lap_data.drop(columns = [
             "Time",
-            "DriverNumber", 
-            'Stint', 
-            'IsPersonalBest', 
-            'Deleted', 
-            'DeletedReason', 
-            'FastF1Generated', 
+            "DriverNumber",
+            'IsPersonalBest',
+            'Deleted',
+            'DeletedReason',
+            'FastF1Generated',
             'IsAccurate'
         ])
         session_laps = pd.concat([session_laps, final_laps_data], axis = 0, ignore_index = True)

@@ -1,7 +1,7 @@
 {{
     config(
         materialized="incremental",
-        unique_key = ["constructor_id"],
+        unique_key = ["sk_constructor"],
         incremental_strategy = "merge"
     )
 }}

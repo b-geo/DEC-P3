@@ -1,14 +1,21 @@
 {{
     config(
         materialized = "incremental",
-        unique_key = ["sk_constructor", "standings_season", "standings_round"],
+        unique_key = ["sk_constructor_standing"],
         incremental_strategy = "merge",
         merge_update_columns = ["constructor_points", "constructor_position", "constructor_wins"]
     )
 }}
 
 select
-	{{ dbt_utils.generate_surrogate_key(['parse_json(stg_constructor_standings.constructor):"constructorId"::varchar']) }} as sk_constructor,
+	{{ dbt_utils.generate_surrogate_key(
+		[
+			'parse_json(stg_constructor_standings.constructor):"constructorId"::varchar',
+			'stg_constructor_standings.season',
+			'stg_constructor_standings.round'
+		]) 
+	}} as sk_constructor_standing,
+    {{ dbt_utils.generate_surrogate_key(['parse_json(stg_constructor_standings.constructor):"constructorId"::varchar']) }} as sk_constructor,
 	stg_constructor_standings.season as standings_season,
 	stg_constructor_standings.round as standings_round,
 	stg_constructor_standings.position as constructor_position,

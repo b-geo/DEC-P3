@@ -4,6 +4,12 @@ models:
   - name: fact_constructor_standings
     columns:
 
+      - name: sk_driver_standing
+        description: The surrogate key of constructor's position ath the end of a round for a specific seaosn
+        tests:
+          - not_null
+          - unique
+
       - name: sk_constructor
         description: Foreign key to the constructor dimension table
         tests:

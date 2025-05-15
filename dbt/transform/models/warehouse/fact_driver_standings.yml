@@ -3,6 +3,12 @@ version: 2
 models:
   - name: fact_driver_standings
     columns:
+      - name: sk_driver_standing
+        description: The surrogate key of driver's position ath the end of a round for a specific seaosn
+        tests:
+          - not_null
+          - unique
+
       - name: sk_driver
         description: Foreign key to the driver dimension table
         tests:

@@ -1,7 +1,7 @@
 {{
     config(
         materialized="incremental",
-        unique_key = ["driver_id"],
+        unique_key = ["sk_driver"],
         incremental_strategy = "merge"
     )
 }}
@@ -16,7 +16,11 @@ select
     parse_json(stg_driver_standings.driver):"familyName"::varchar as driver_family_name,
     parse_json(stg_driver_standings.driver):"dateOfBirth"::date as driver_date_of_birth,
     parse_json(stg_driver_standings.driver):"nationality"::varchar as driver_nationality,
-    {{ dbt_utils.generate_surrogate_key(['parse_json(stg_driver_standings.constructors):"constructorId"::varchar']) }} as sk_constructor,
+    {{ dbt_utils.generate_surrogate_key(
+        [
+        'parse_json(stg_driver_standings.constructors)[0]:"constructorId"::varchar'
+        ]) 
+    }} as sk_constructor,
     to_timestamp(stg_driver_standings.last_updated) as last_updated
 from {{ source("f1_staging", "stg_driver_standings")}} as stg_driver_standings
 {% if is_incremental() %}
