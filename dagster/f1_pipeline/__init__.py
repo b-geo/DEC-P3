@@ -1,5 +1,4 @@
 from f1_pipeline.assets import jolpi
-from f1_pipeline.assets import dbt
 from f1_pipeline.schedules import staging_schedule
 from f1_pipeline.assets.dbt.dbt_assets import dbt_resource, dbt_marts
 from dagster_snowflake import snowflake_resource

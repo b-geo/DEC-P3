@@ -6,6 +6,7 @@ api = JolpiAPI()
 
 @asset(
     group_name="f1_staging",
+    key_prefix="f1_staging",
     required_resource_keys={"snowflake_resource"}
 )
 def stg_events(context) -> None:
@@ -17,6 +18,7 @@ def stg_events(context) -> None:
 
 @asset(
     group_name="f1_staging",
+    key_prefix="f1_staging",
     required_resource_keys={"snowflake_resource"}
 )
 def stg_circuits(context: OpExecutionContext) -> None:
@@ -28,6 +30,7 @@ def stg_circuits(context: OpExecutionContext) -> None:
 
 @asset(
     group_name="f1_staging",
+    key_prefix="f1_staging",
     required_resource_keys={"snowflake_resource"}
 )
 def stg_constructor_standings(context: OpExecutionContext) -> None:
@@ -38,6 +41,7 @@ def stg_constructor_standings(context: OpExecutionContext) -> None:
 
 @asset(
     group_name="f1_staging",
+    key_prefix="f1_staging",
     required_resource_keys={"snowflake_resource"}
 )
 def stg_driver_standings(context: OpExecutionContext) -> None:

@@ -32,3 +32,5 @@ clean-targets:         # directories to be removed by `dbt clean`
 models:
     marts:
       +schema: marts
+      +meta: {dagster: {group: f1_marts}}
+
