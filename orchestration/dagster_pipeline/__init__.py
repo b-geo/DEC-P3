@@ -1,33 +1,17 @@
-from pathlib import Path
-from typing import List
 from dagster import (
-    Definitions,
-    load_assets_from_modules,
-    AssetsDefinition
+    Definitions
 )
 from dagster_dbt import (
-    DbtCliResource, 
-    load_assets_from_dbt_manifest
+    DbtCliResource
 )
-from dagster_snowflake import snowflake_resource
 from dagster_pipeline.assets import jolpi
-from dagster_pipeline.assets.dbt.dbt_assets import (
-    DBT_PROJECT_DIR, 
-    DBT_PROFILES_DIR, 
-    MANIFEST_PATH
-)
+from dagster_snowflake import snowflake_resource
+from dagster_pipeline.source_assets import kafka_snowflake
+from dagster_pipeline.assets import dbt
 from dagster_pipeline.schedules import staging_schedule
 
-# adding type hints below to avoid pylint warnings
-jolpi_assets: List[AssetsDefinition] = load_assets_from_modules([jolpi])
-dbt_assets: List[AssetsDefinition] = load_assets_from_dbt_manifest(
-    manifest=Path(MANIFEST_PATH),
-    dbt_resource_key="dbt_resource", 
-    use_build_command=True
-)
-
 defs = Definitions(
-    assets= [*jolpi_assets, *dbt_assets],
+    assets= [*jolpi.jolpi_assets_list, *dbt.dbt_assets_list, kafka_snowflake.stg_laps, kafka_snowflake.stg_telemetry],
     schedules=[staging_schedule],
     resources= {
         "snowflake_resource":
@@ -38,10 +22,11 @@ defs = Definitions(
                 "database": "f1",
                 "warehouse": "COMPUTE_WH",
                 "schema": "staging"
-            }),
+        }),
         "dbt_resource": DbtCliResource(
-            project_dir=DBT_PROJECT_DIR,
-            profiles_dir=DBT_PROFILES_DIR
+            project_dir=dbt.DBT_PROJECT_DIR,
+            profiles_dir=dbt.DBT_PROFILES_DIR
         )
     }
 )
+

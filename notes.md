@@ -103,5 +103,6 @@ FOLDER STRUCTURE
 - orchestration
 - transformation
 
-move the from manifest part
-load laps to then use and other table should work
+- terraform
+- cicd
+- presentation
