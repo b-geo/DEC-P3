@@ -1,0 +1,171 @@
+version: 2
+
+models:
+  - name: race_laps_obt
+    config:
+      meta:
+        dagster:
+          group: f1_presentation
+    columns:
+      - name: sk_race_lap
+        description: The surrogate key of the lap for a race
+        tests:
+          - not_null
+          - unique
+    
+      - name: sk_driver
+        description: Foreign key to the driver dimension table
+        tests:
+          - not_null
+        
+      - name: sk_constructor
+        description: Foreign key to the constructor dimension table
+        tests:
+          - not_null
+      
+      - name: sk_event  
+        description: Foreign key to the event dimension table
+        tests:
+          - not_null
+
+      - name: sk_circuit
+        description: Foreign key to the circuit dimension table
+        tests:
+          - not_null
+
+      - name: lap_number
+        description: The lap number of the race
+
+      - name: position
+        description: Driver position in field at the end of the lap
+      
+      - name: lap_time_ms
+        description: The lap time in milliseconds
+      
+      - name: pit_out_time_ms
+        description: The session time in milliseconds when the driver left the pit lane
+      
+      - name: pit_in_time_ms
+        description: The session time in milliseconds when the driver entered the pit lane
+      
+      - name: sector1_time_ms
+        description: The sector 1 time in milliseconds
+
+      - name: sector2_time_ms
+        description: The sector 2 time in milliseconds
+      
+      - name: sector3_time_ms 
+        description: The sector 3 time in milliseconds
+
+      - name: speed_trap_1_kmh
+        description: The speed trap 1 in km/h
+
+      - name: speed_trap_2_kmh
+        description: The speed trap 2 in km/h
+      
+      - name: speed_finishline_kmh
+        description: The speed at the finish line in km/h
+      
+      - name: speed_straight_kmh
+        description: The speed on the straight in km/h
+      
+      - name: tyre_compound
+        description: The compound of the tyre used for the current lap
+
+      - name: tyre_life_laps
+        description: The number of laps the tyre has been used for
+
+      - name: driver_stint
+        description: The number for the race
+
+      - name: lap_start
+        description: The date and time of the start of the lap
+
+      - name: driver_id
+        description: The natural key of the driver
+        tests:
+          - not_null
+
+      - name: driver_permanent_number
+        description: Permanent number the driver is given
+
+      - name: driver_code
+        description: The drivers code (short hand as it appears on dashboard)
+
+      - name: driver_given_name
+        description: The driver's first name
+
+      - name: driver_family_name
+        description: The driver's last name
+
+      - name: driver_date_of_birth
+        description: The driver's date of birth
+
+      - name: driver_nationality
+        description: The nationality of the driver
+
+      - name: constructor_id
+        description: The natural key of the constructor
+        tests:
+          - not_null
+
+      - name: constructor_name
+        description: The constructor's name
+
+      - name: constructor_nationality
+        description: The origin country of the constructor
+
+      - name: circuit_id
+        description: The natural key of the circuit
+        tests:
+          - not_null
+
+      - name: circuit_name
+        description: The circuit name
+
+      - name: circuit_country
+        description: The country in which the circuit is located
+        
+      - name: circuit_locality
+        description: The locality (usually state) in which the circuit is located
+
+      - name: event_id
+        description: The natural key of the event
+        tests:
+          - not_null
+
+      - name: season_year
+        description: The seson in which the event took place, represented as the year
+
+      - name: round_number
+        description: The round number in which the event took place
+
+      - name: event_name
+        description: The event (grand prix) name
+
+      - name: race_date
+        description: The date of the race
+
+      - name: race_time
+        description: The time of the race
+
+      - name: first_practice
+        description: Date time of first practice
+
+      - name: second_practice
+        description: Date time of second practice
+
+      - name: third_practice
+        description: Date time of third practice
+
+      - name: qualifying
+        description: Date time of qualifying
+
+      - name: sprint_qualifying
+        description: Date time of sprint qualifying
+
+      - name: sprint
+        description: Date time of sprint
+
+      - name: last_updated
+        description: The last updated date for that row

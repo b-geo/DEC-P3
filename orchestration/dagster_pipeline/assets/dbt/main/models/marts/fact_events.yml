@@ -1,0 +1,62 @@
+version: 2
+
+models:
+  - name: fact_events
+    config:
+      meta:
+        dagster:
+          group: f1_marts
+    columns:
+      - name: sk_event
+        description: The surrogate key of the event_id
+        tests:
+          - not_null
+          - unique
+      
+      - name: event_id
+        description: The natural key
+        tests:
+          - not_null
+          - unique
+
+      - name: season_year
+        description: The seson in which the event took place, represented as the year
+
+      - name: round_number
+        description: The round number in which the event took place
+
+      - name: event_name
+        description: The event (grand prix) name
+
+      - name: race_date
+        description: The date of the race
+
+      - name: race_time
+        description: The time of the race
+
+      - name: sk_circuit
+        description: Foreign key to the circuit dimension table
+
+      - name: event_url
+        description: Wikipedia URL of the event
+
+      - name: first_practice
+        description: Date time of first practice
+
+      - name: second_practice
+        description: Date time of second practice
+
+      - name: third_practice
+        description: Date time of third practice
+
+      - name: qualifying
+        description: Date time of qualifying
+
+      - name: sprint_qualifying
+        description: Date time of sprint qualifying
+
+      - name: sprint
+        description: Date time of sprint
+
+      - name: last_updated
+        description: The last updated date for that row

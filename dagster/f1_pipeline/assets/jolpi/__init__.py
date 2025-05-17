@@ -1,1 +1,0 @@
-from .jolpi_assets import *

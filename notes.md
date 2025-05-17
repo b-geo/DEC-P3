@@ -102,3 +102,6 @@ FOLDER STRUCTURE
 - streaming dashboard
 - orchestration
 - transformation
+
+move the from manifest part
+load laps to then use and other table should work
