@@ -1,5 +1,13 @@
+# required for kafka_producer and orchestration
+pandas==2.2.1
+websockets==12.0
+dotenv==0.9.9
+
+# required for kafka_producer
 fastf1==3.5.3
 confluent_kafka==2.10.0
+
+# required for orchestration
 dagster==1.9.9
 dagster-cloud==1.9.9
 dagster-webserver==1.9.9
@@ -8,8 +16,11 @@ dagster-snowflake-pandas==0.25.9
 dbt-core==1.7.13
 dbt-snowflake==1.7.4
 snowplow-tracker==0.10.0
-pandas==2.2.1
-websockets==12.0
+
+# presentation folder note:
+# - snowflake_streamlit folder has environment.yml file to be used on Snowflake.
+# - streaming_dashboard is Node.js based and has its own package.json file.
+
 # pip install -r requirements.txt --no-deps
 # pip install "protobuf>=5.0,<6.0 "
 

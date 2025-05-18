@@ -1,5 +1,6 @@
 from dagster import (
-    Definitions
+    Definitions,
+    EnvVar
 )
 from dagster_dbt import (
     DbtCliResource
@@ -9,6 +10,8 @@ from dagster_snowflake import snowflake_resource
 from dagster_pipeline.source_assets import snowflake
 from dagster_pipeline.assets import dbt
 from dagster_pipeline.schedules import staging_schedule
+from dotenv import load_dotenv
+load_dotenv()
 
 defs = Definitions(
     assets= [*jolpi.jolpi_assets_list, *dbt.dbt_assets_list, *snowflake.snowflake_source_assets_list],
@@ -16,12 +19,12 @@ defs = Definitions(
     resources= {
         "snowflake_resource":
             snowflake_resource.configured({
-                "account": "UDGCIBD-WR02182",
-                "user": "B1G",
-                "password": "dqF!U7uzgcEHTAg",
-                "database": "f1",
-                "warehouse": "COMPUTE_WH",
-                "schema": "staging"
+            "account": {"env": "SNOWFLAKE_ACCOUNT"},
+            "user": {"env": "SNOWFLAKE_USER"},
+            "password": {"env": "SNOWFLAKE_PASSWORD"},
+            "database": {"env": "SNOWFLAKE_DB"},
+            "warehouse": {"env": "SNOWFLAKE_WAREHOUSE"},
+            "schema": "staging"
         }),
         "dbt_resource": DbtCliResource(
             project_dir=dbt.DBT_PROJECT_DIR,
