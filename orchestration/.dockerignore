@@ -1,0 +1,8 @@
+Dockerfile
+logs
+dbt_packages
+target
+.dockerignore
+.git
+.gitignore
+.env

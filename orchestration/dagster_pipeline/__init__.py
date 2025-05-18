@@ -1,6 +1,5 @@
 from dagster import (
-    Definitions,
-    EnvVar
+    Definitions
 )
 from dagster_dbt import (
     DbtCliResource
@@ -10,8 +9,7 @@ from dagster_snowflake import snowflake_resource
 from dagster_pipeline.source_assets import snowflake
 from dagster_pipeline.assets import dbt
 from dagster_pipeline.schedules import staging_schedule
-from dotenv import load_dotenv
-load_dotenv()
+
 
 defs = Definitions(
     assets= [*jolpi.jolpi_assets_list, *dbt.dbt_assets_list, *snowflake.snowflake_source_assets_list],

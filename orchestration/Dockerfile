@@ -1,24 +1,38 @@
-# Start with a Python base image
 FROM python:3.12-slim
 
-# Set up working directory
 WORKDIR /usr/src/app
 
-# Copy your dbt project
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git \
+    gcc \
+    python3-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN pip install --no-cache-dir \
+    "dbt-core~=1.7.13" \
+    "dbt-snowflake~=1.7.4" \
+    "dagster==1.6.9" \
+    "dagster-cloud==1.6.9" \
+    "dagster-webserver==1.6.9" \
+    "dagster_dbt==0.22.9" \
+    "dagster-snowflake-pandas==0.22.9" \
+    "snowplow-tracker==0.10.0" \
+    "pandas==2.2.1" \
+    "websockets==11.0.3"
+
 COPY . .
 
-RUN pip install --no cache-dir \
-dagster==1.9.9 \
-dagster-cloud==1.9.9 \
-dagster-webserver==1.9.9 \
-dagster_dbt==0.25.9 \
-dagster-snowflake-pandas==0.25.9 \
-dbt-core==1.7.13 \
-dbt-snowflake==1.7.4 \
-snowplow-tracker==0.10.0
+RUN mkdir -p /dagster_home
+ENV DAGSTER_HOME=/dagster_home
 
-# Expose ports if needed (Dagit typically uses 3000)
-EXPOSE 3000
+COPY ./dagster_pipeline/assets/dbt/main/profiles.yml /root/.dbt/profiles.yml
+RUN dbt deps --project-dir ./dagster_pipeline/assets/dbt/main
 
-# Obviously not ideal for production
-CMD ["dagster", "dev"] 
+EXPOSE 3000 4000
+
+# need to run dbt compile at time of container start because of envar
+# then run dagster dev
+RUN chmod +x /usr/src/app/entrypoint.sh
+
+ENTRYPOINT ["/usr/src/app/entrypoint.sh"]
+

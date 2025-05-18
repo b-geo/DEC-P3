@@ -1,0 +1,8 @@
+load_from:
+  - grpc_server:
+      host: "localhost"
+      port: 4000
+load_from:
+  - python_module:
+      module_name: dagster_pipeline
+      attribute: defs
