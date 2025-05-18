@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // Elements
     const canvas = document.getElementById('trackCanvas');
     const ctx = canvas.getContext('2d');
     const loadingEl = document.getElementById('loading');
@@ -6,28 +7,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const legendEl = document.getElementById('legend');
     const leaderboardBody = document.getElementById('leaderboardBody');
     const connectionStatus = document.getElementById('connectionStatus');
+    const connectionIcon = document.getElementById('connectionIcon');
+    const connectionText = document.getElementById('connectionText');
+    
+    // Initialize socket connection
     const socket = io();
     
+    // Track and car data
     let trackCoordinates = [];
     let trackData = null;
-    let cars = {}; // Store car positions: { carId: { x, y, color } }
+    let cars = {}; // Store car positions: { carId: { x, y, color, line, speed, lap, lastUpdate } }
     let animationFrameId = null;
     
-    
-    // Define some car colors
-    const carColors = [
-        '#FF0000', // Red
-        '#0000FF', // Blue
-        '#00FF00', // Green
-        '#FFFF00', // Yellow
-        '#FFA500', // Orange
-        '#800080', // Purple
-        '#00FFFF', // Cyan
-        '#FF00FF', // Magenta
-        '#FFFFFF', // White
-        '#000000', // Black
-    ];
-
+    // Team colors - modern F1 styling
     const driver_team = {
         "ALB": "williams",
         "ALO": "aston_martin",
@@ -49,27 +41,26 @@ document.addEventListener('DOMContentLoaded', () => {
         "STR": "aston_martin",
         "TSU": "red_bull",
         "VER": "red_bull"
-      }
-    const team_colour = {
-        "alpine": ["#00174c", "#fe88bd"], 
-        "aston_martin": ["07565a", "#c5ce5e"], 
-        "ferrari": ["#aa1e1c", "#fdea18"], 
-        "haas": ["#e7e7e9", "#d6021f"], 
-        "mclaren": ["#272b32", "#000000"], 
-        "mercedes": ["#002420", "#08bdc9"], 
-        "rb": ["#e5e6f2", "#1c67cc"],  
-        "red_bull": ["#1f2737", "#e20620"], 
-        "sauber": ["#8bd495", "#272b30"], 
-        "williams": ["#1868dc", "#000000"]
-    }
-
-
+    };
     
-    // Set canvas dimensions based on container size
+    const team_colour = {
+        "alpine": ["#0090FF", "#FF79C9"], // Updated colors
+        "aston_martin": ["#006F62", "#00594F"], 
+        "ferrari": ["#F91536", "#FFF200"], 
+        "haas": ["#FFFFFF", "#B6BABD"], 
+        "mclaren": ["#FF8700", "#0070D0"], 
+        "mercedes": ["#00D2BE", "#00A298"], 
+        "rb": ["#6692FF", "#00316E"],  
+        "red_bull": ["#3671C6", "#EE0000"], 
+        "sauber": ["#52E252", "#00E701"], 
+        "williams": ["#0093EF", "#00F0FF"]
+    };
+    
+    // Set canvas dimensions with device pixel ratio for sharp rendering
     function setCanvasDimensions() {
         const containerWidth = container.clientWidth;
-        // Set a fixed aspect ratio (4:3)
-        const aspectRatio = 4/3;
+        // Set a fixed aspect ratio (16:9 for widescreen look)
+        const aspectRatio = 16/9;
         const containerHeight = containerWidth / aspectRatio;
         
         // Set canvas dimensions with device pixel ratio for sharper display
@@ -94,31 +85,43 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    // Fetch the track data from the JSON file
-    fetch('tracks/melb.json')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            trackCoordinates = data;
-            loadingEl.style.display = 'none';
-            
-            // Process the track data once
-            processTrackData();
-            
-            // Start rendering loop
-            startRenderLoop();
-            
-            // Connect to WebSocket after track is loaded
-            connectWebSocket();
-        })
-        .catch(error => {
-            console.error('Error loading the track data:', error);
-            loadingEl.textContent = 'Error loading track data. Please try again.';
-        });
+    // Fetch track data
+    function fetchTrackData() {
+        // Show loading animation
+        loadingEl.style.display = 'flex';
+        
+        fetch('tracks/melb.json')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                trackCoordinates = data;
+                loadingEl.style.display = 'none';
+                
+                // Process the track data
+                processTrackData();
+                
+                // Start rendering loop
+                startRenderLoop();
+                
+                // Connect to WebSocket after track is loaded
+                connectWebSocket();
+            })
+            .catch(error => {
+                console.error('Error loading the track data:', error);
+                loadingEl.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                        <line x1="12" y1="9" x2="12" y2="13"></line>
+                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                    </svg>
+                    <span>Error loading track data. Please try again.</span>
+                `;
+            });
+    }
     
     // Process track data and cache calculations
     function processTrackData() {
@@ -151,8 +154,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const canvasHeight = canvas.logicalHeight;
         const padding = 40;
         
-        const xScale = (canvasWidth - padding) / trackData.width;
-        const yScale = (canvasHeight - padding) / trackData.height;
+        const xScale = (canvasWidth - padding * 2) / trackData.width;
+        const yScale = (canvasHeight - padding * 2) / trackData.height;
         const baseScale = Math.min(xScale, yScale);
         
         const scaledWidth = trackData.width * baseScale;
@@ -166,20 +169,21 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
     
+    // Draw the track
     function drawTrack() {
         if (!trackData) return;
         
-        // Get logical canvas dimensions (without DPR scaling)
+        // Get logical canvas dimensions
         const canvasWidth = canvas.logicalWidth;
         const canvasHeight = canvas.logicalHeight;
         
-        // Clear the canvas - use logical dimensions
+        // Clear the canvas
         ctx.clearRect(0, 0, canvasWidth, canvasHeight);
         
         // Calculate the scaling to fit the canvas with padding
-        const padding = 40; // Padding in pixels
-        const xScale = (canvasWidth - padding) / trackData.width;
-        const yScale = (canvasHeight - padding) / trackData.height;
+        const padding = 40;
+        const xScale = (canvasWidth - padding * 2) / trackData.width;
+        const yScale = (canvasHeight - padding * 2) / trackData.height;
         const baseScale = Math.min(xScale, yScale);
         
         // Center the track on the canvas
@@ -188,7 +192,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const centerX = (canvasWidth - scaledWidth) / 2;
         const centerY = (canvasHeight - scaledHeight) / 2;
         
-        // Draw the track outline
+        // Draw a subtle grid background
+        drawGrid(canvasWidth, canvasHeight);
+        
+        // Draw track outline
         ctx.beginPath();
         trackCoordinates.forEach((point, index) => {
             const x = centerX + (point[0] - trackData.minX) * baseScale;
@@ -202,15 +209,23 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         ctx.closePath();
         
-        // Fill the track
-        ctx.fillStyle = '#e6e6e6';
-        ctx.fill();
-        
-        // Draw the track outline with anti-aliasing
-        ctx.strokeStyle = '#e10600';
+        // Draw track outer stroke for glow effect
+        ctx.strokeStyle = '#e10600'; // F1 red
         ctx.lineWidth = 2;
         ctx.lineJoin = 'round';
         ctx.lineCap = 'round';
+        ctx.stroke();
+        
+        // Fill the track with gradient
+        const gradient = ctx.createLinearGradient(0, 0, canvasWidth, canvasHeight);
+        gradient.addColorStop(0, '#2a2a38');
+        gradient.addColorStop(1, '#1e1e26');
+        ctx.fillStyle = gradient;
+        ctx.fill();
+        
+        // Draw track border
+        ctx.strokeStyle = '#e10600';
+        ctx.lineWidth = 2;
         ctx.stroke();
         
         // Draw the start/finish line
@@ -219,18 +234,35 @@ document.addEventListener('DOMContentLoaded', () => {
         const startY = centerY + (startPoint[1] - trackData.minY) * baseScale;
         
         ctx.beginPath();
-        ctx.strokeStyle = '#000';
-        ctx.lineWidth = 3;
-        ctx.moveTo(startX - 15, startY);
-        ctx.lineTo(startX + 15, startY);
+        ctx.strokeStyle = '#FFFFFF';
+        ctx.lineWidth = 2;
+        ctx.moveTo(startX - 20, startY);
+        ctx.lineTo(startX + 20, startY);
         ctx.stroke();
+    
+    }
+    
+    // Draw grid background
+    function drawGrid(width, height) {
+        const gridSize = 40;
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
+        ctx.lineWidth = 1;
         
-        // Draw the track name
-        const fontSize = Math.max(16, Math.min(20, canvasWidth / 30));
-        ctx.font = `bold ${fontSize}px Arial`;
-        ctx.fillStyle = '#333';
-        ctx.textAlign = 'center';
-        ctx.fillText('Melbourne Grand Prix Circuit', canvasWidth / 2, fontSize * 1.5);
+        // Draw vertical lines
+        for (let x = 0; x <= width; x += gridSize) {
+            ctx.beginPath();
+            ctx.moveTo(x, 0);
+            ctx.lineTo(x, height);
+            ctx.stroke();
+        }
+        
+        // Draw horizontal lines
+        for (let y = 0; y <= height; y += gridSize) {
+            ctx.beginPath();
+            ctx.moveTo(0, y);
+            ctx.lineTo(width, y);
+            ctx.stroke();
+        }
     }
     
     // Draw cars on the track
@@ -238,7 +270,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!trackData) return;
         
         // Car size relative to canvas width
-        const carRadius = Math.max(5, Math.min(8, canvas.logicalWidth / 100));
+        const carRadius = Math.max(6, Math.min(10, canvas.logicalWidth / 80));
         const now = Date.now();
         const staleThreshold = 5000; // Consider data stale after 5 seconds
         
@@ -249,29 +281,51 @@ document.addEventListener('DOMContentLoaded', () => {
             // Convert car coordinates to canvas coordinates
             const canvasPos = trackToCanvas(car.x, car.y);
             
+            // Draw car glow
+            ctx.beginPath();
+            ctx.arc(canvasPos.x, canvasPos.y, carRadius * 1.5, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(${hexToRgb(car.line)}, 0.3)`;
+            ctx.fill();
+            
             // Draw car
             ctx.beginPath();
             ctx.arc(canvasPos.x, canvasPos.y, carRadius, 0, Math.PI * 2);
             ctx.fillStyle = car.color;
             ctx.fill();
             ctx.strokeStyle = car.line;
-            ctx.lineWidth = 1;
+            ctx.lineWidth = 2;
             ctx.stroke();
             
             // Draw car identifier (driver code)
-            ctx.font = `bold ${carRadius}px Arial`;
+            ctx.font = `bold ${carRadius * 0.8}px Arial`;
             ctx.fillStyle = '#FFFFFF';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.fillText(carId, canvasPos.x, canvasPos.y);
             
-            // Draw additional info (speed, lap)
-            ctx.font = `${carRadius * 0.8}px Arial`;
-            ctx.fillStyle = '#333';
+            // Draw speed and lap info in a small box below the car
+            const infoBoxWidth = carRadius * 6;
+            const infoBoxHeight = carRadius * 3;
+            const infoBoxX = canvasPos.x - infoBoxWidth / 2;
+            const infoBoxY = canvasPos.y + carRadius * 1.5;
+            
+            // Info box background
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+            ctx.fillRect(infoBoxX, infoBoxY, infoBoxWidth, infoBoxHeight);
+            ctx.strokeStyle = car.line;
+            ctx.lineWidth = 1;
+            ctx.strokeRect(infoBoxX, infoBoxY, infoBoxWidth, infoBoxHeight);
+            
+            // Speed text
+            ctx.font = `${carRadius * 0.7}px Arial`;
+            ctx.fillStyle = '#FFFFFF';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'top';
-            ctx.fillText(`${Math.round(car.speed)} km/h`, canvasPos.x, canvasPos.y + carRadius + 2);
-            ctx.fillText(`Lap ${car.lap}`, canvasPos.x, canvasPos.y + carRadius + carRadius * 1.5);
+            ctx.fillText(`${Math.round(car.speed)} km/h`, canvasPos.x, infoBoxY + 2);
+            
+            // Lap text
+            ctx.font = `${carRadius * 0.7}px Arial`;
+            ctx.fillText(`LAP ${car.lap}`, canvasPos.x, infoBoxY + carRadius * 1.5);
         });
     }
     
@@ -298,18 +352,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     // Connect to WebSocket server
-    function connectWebSocket() {       
+    function connectWebSocket() {
         // Update connection status when connected
         socket.on('connect', () => {
-            connectionStatus.textContent = 'Connected';
-            connectionStatus.classList.remove('disconnected');
-            connectionStatus.classList.add('connected');
+            updateConnectionStatus('Connected');
         });
         
         // Listen for telemetry updates
         socket.on('position-update', (data) => {
-            // Format: {"Date":1742098702974,"SessionTime":4260355,"DriverAhead":"","DistanceToDriverAhead":0.2,"RPM":10114.3998848,"Speed":0.0,"nGear":2,"Throttle":16.0,"Brake":true,"DRS":1,"Distance":-0.0016174214,"RelativeDistance":-0.0000000054,"Status":"OnTrack","X":-941.083631066,"Y":-1575.8587888095,"Z":86.0000000914,"Lap":2,"Driver":"VER","date_delta":0}
-            
             // Extract the driver and position data
             const driverId = data.Driver;
             const x = data.X;
@@ -319,8 +369,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (data.Status === "OnTrack") {
                 // If this is a new car, assign a color
                 if (!cars[driverId]) {
-                    const dt = driver_team[driverId]
-                    const tc = team_colour[dt];
+                    const dt = driver_team[driverId];
+                    const tc = team_colour[dt] || ['#CCCCCC', '#999999']; // Default color if team not found
                     
                     cars[driverId] = {
                         x: x,
@@ -351,18 +401,45 @@ document.addEventListener('DOMContentLoaded', () => {
         // Handle connection errors
         socket.on('connect_error', (error) => {
             console.error('WebSocket connection error:', error);
-            connectionStatus.textContent = 'Connection Error';
-            connectionStatus.classList.remove('connected');
-            connectionStatus.classList.add('disconnected');
+            updateConnectionStatus('Disconnected');
         });
         
         // Handle disconnection
         socket.on('disconnect', (reason) => {
             console.warn('WebSocket disconnected:', reason);
-            connectionStatus.textContent = 'Disconnected';
+            updateConnectionStatus('Disconnected');
+        });
+    }
+    
+    // Update connection status indicator
+    function updateConnectionStatus(status) {
+        connectionStatus.textContent = status;
+        
+        if (status === 'Connected') {
+            connectionStatus.classList.remove('disconnected');
+            connectionStatus.classList.add('connected');
+            connectionIcon.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+                </svg>
+            `;
+            connectionText.textContent = 'Connected';
+        } else {
             connectionStatus.classList.remove('connected');
             connectionStatus.classList.add('disconnected');
-        });
+            connectionIcon.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="1" y1="1" x2="23" y2="23"></line>
+                    <path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"></path>
+                    <path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"></path>
+                    <path d="M10.71 5.05A16 16 0 0 1 22.58 9"></path>
+                    <path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"></path>
+                    <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
+                    <line x1="12" y1="20" x2="12.01" y2="20"></line>
+                </svg>
+            `;
+            connectionText.textContent = 'Disconnected';
+        }
     }
     
     // Update the legend based on current cars
@@ -379,9 +456,10 @@ document.addEventListener('DOMContentLoaded', () => {
             colorBox.className = 'car-color';
             colorBox.style.backgroundColor = car.color;
             colorBox.style.borderColor = car.line;
+            colorBox.textContent = driverId;
             
             const driverText = document.createElement('span');
-            driverText.textContent = driverId;
+            driverText.textContent = getDriverFullName(driverId);
             
             legendItem.appendChild(colorBox);
             legendItem.appendChild(driverText);
@@ -407,8 +485,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (b.lap !== a.lap) {
                     return b.lap - a.lap;
                 }
-                // If same lap, could sort by track position, but we don't have that data
-                // Just sort by driver ID for consistency
+                // If same lap, sort by relative distance if available
+                // For now, sort by driver ID for consistency
                 return a.id.localeCompare(b.id);
             });
         
@@ -418,17 +496,30 @@ document.addEventListener('DOMContentLoaded', () => {
         // Add rows for each car
         carArray.forEach((car, index) => {
             const row = document.createElement('tr');
+            row.className = index % 2 === 0 ? 'even' : 'odd';
             
             // Position
             const posCell = document.createElement('td');
+            posCell.className = 'position-cell';
             posCell.textContent = index + 1;
             row.appendChild(posCell);
             
             // Driver ID
             const driverCell = document.createElement('td');
-            driverCell.textContent = car.id;
-            driverCell.style.color = car.color;
-            driverCell.style.fontWeight = 'bold';
+            driverCell.className = 'driver-cell';
+            
+            const driverIndicator = document.createElement('div');
+            driverIndicator.className = 'driver-indicator';
+            driverIndicator.style.backgroundColor = car.color;
+            driverIndicator.style.borderColor = car.line;
+            
+            const driverCode = document.createElement('span');
+            driverCode.className = 'driver-code';
+            driverCode.style.color = car.line;
+            driverCode.textContent = car.id;
+            
+            driverCell.appendChild(driverIndicator);
+            driverCell.appendChild(driverCode);
             row.appendChild(driverCell);
             
             // Lap
@@ -451,8 +542,52 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
+    // Helper function to get full driver name (would be replaced with real names in production)
+    function getDriverFullName(driverId) {
+        const driverNames = {
+            'VER': 'Max Verstappen',
+            'HAM': 'Lewis Hamilton',
+            'NOR': 'Lando Norris',
+            'LEC': 'Charles Leclerc',
+            'SAI': 'Carlos Sainz',
+            'ALO': 'Fernando Alonso',
+            'RUS': 'George Russell',
+            'PIA': 'Oscar Piastri',
+            'STR': 'Lance Stroll',
+            'GAS': 'Pierre Gasly',
+            'ALB': 'Alexander Albon',
+            'HUL': 'Nico Hulkenberg',
+            'TSU': 'Yuki Tsunoda',
+            'HAD': 'D. Hadjar',
+            'BOR': 'V. Bottas',
+            'OCO': 'Esteban Ocon',
+            'BEA': 'O. Bearman',
+            'ANT': 'A. Antonelli',
+            'LAW': 'L. Lawson',
+            'DOO': 'J. Doohan'
+        };
+        
+        return driverNames[driverId] || driverId;
+    }
+    
+    // Helper function to convert hex to RGB
+    function hexToRgb(hex) {
+        // Remove the hash if it exists
+        hex = hex.replace('#', '');
+        
+        // Parse the hex values
+        const r = parseInt(hex.substring(0, 2), 16);
+        const g = parseInt(hex.substring(2, 4), 16);
+        const b = parseInt(hex.substring(4, 6), 16);
+        
+        return `${r}, ${g}, ${b}`;
+    }
+    
     // Initialize canvas dimensions
     setCanvasDimensions();
+    
+    // Fetch track data
+    fetchTrackData();
     
     // Handle window resize
     window.addEventListener('resize', () => {
