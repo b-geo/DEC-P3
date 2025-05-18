@@ -1,0 +1,15 @@
+main:
+  target: dev
+  outputs:
+    dev:
+      type: snowflake
+      account: UDGCIBD-WR02182
+      # User/password auth
+      user: B1G
+      password: dqF!U7uzgcEHTAg
+      role: accountadmin
+      database: f1
+      warehouse: compute_wh
+      schema: marts
+      threads: 2
+      client_session_keep_alive: False

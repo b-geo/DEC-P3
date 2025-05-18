@@ -1,0 +1,35 @@
+version: 2
+
+models:
+  - name: dim_circuit
+    config:
+      meta:
+        dagster:
+          group: f1_marts
+    columns:
+      - name: sk_circuit
+        description: The surrogate key of the circuit_id
+        tests:
+          - not_null
+          - unique
+      
+      - name: circuit_id
+        description: The natural key
+        tests:
+          - not_null
+          - unique
+
+      - name: circuit_name
+        description: The circuit name
+
+      - name: circuit_url
+        description: Wikipedia URL of the circuit
+
+      - name: circuit_country
+        description: The country in which the circuit is located
+
+      - name: circuit_locality
+        description: The locality (usually state) in which the circuit is located
+
+      - name: last_updated
+        description: The last updated date for that row

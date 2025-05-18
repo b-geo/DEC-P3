@@ -1,0 +1,85 @@
+version: 2
+
+models:
+  - name: fact_race_laps
+    config:
+      meta:
+        dagster:
+          group: f1_marts
+    columns:
+      - name: sk_race_lap
+        description: The surrogate key of the lap for a race
+        tests:
+          - not_null
+          - unique
+
+      - name: sk_driver
+        description: Foreign key to the driver dimension table
+        tests:
+          - not_null
+
+      - name: sk_constructor
+        description: Foreign key to the constructor dimension table
+        tests:
+          - not_null
+ 
+      - name: sk_event
+        description: Foreign key to the event dimension table
+        tests:
+          - not_null
+
+      - name: sk_circuit
+        description: Foreign key to the circuit dimension table
+        tests:
+          - not_null
+
+      - name: lap_number
+        description: The lap number of the race
+
+      - name: position
+        description: Driver position in field at the end of the lap
+      
+      - name: lap_time_ms
+        description: The lap time in milliseconds
+      
+      - name: pit_out_time_ms
+        description: The session time in milliseconds when the driver left the pit lane
+      
+      - name: pit_in_time_ms
+        description: The session time in milliseconds when the driver entered the pit lane
+      
+      - name: sector1_time_ms
+        description: The sector 1 time in milliseconds
+
+      - name: sector2_time_ms
+        description: The sector 2 time in milliseconds
+      
+      - name: sector3_time_ms 
+        description: The sector 3 time in milliseconds
+
+      - name: speed_trap_1_kmh
+        description: The speed trap 1 in km/h
+
+      - name: speed_trap_2_kmh
+        description: The speed trap 2 in km/h
+      
+      - name: speed_finishline_kmh
+        description: The speed at the finish line in km/h
+      
+      - name: speed_straight_kmh
+        description: The speed on the straight in km/h
+      
+      - name: tyre_compound
+        description: The compound of the tyre used for the current lap
+
+      - name: tyre_life_laps
+        description: The number of laps the tyre has been used for
+
+      - name: driver_stint
+        description: The number for the race
+
+      - name: lap_start
+        description: The date and time of the start of the lap
+
+      - name: last_updated
+        description: The last updated date for that row

@@ -1,0 +1,13 @@
+sources:
+  - name: f1_staging
+    schema: staging
+    database: f1
+    tables:  
+      - name: stg_circuits
+      - name: stg_events
+      - name: stg_constructor_standings
+      - name: stg_driver_standings
+      - name: stg_telemetry
+      - name: stg_laps
+
+
