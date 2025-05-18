@@ -9,10 +9,10 @@ function handleConnection(socket, driverPositions) {
     });
   }
   
-  // Called by Kafka consumer
+  // called by Kafka consumer
   function broadcastToClients(data, io) {
     driverPositions.set(data.Driver, data);
-    io.emit('position-update', data); // Requires io instance
+    io.emit('position-update', data);
   }
   
   module.exports = { handleConnection, broadcastToClients };

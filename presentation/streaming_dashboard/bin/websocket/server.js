@@ -8,7 +8,7 @@ function setupWebSocket(app) {
   const server = http.createServer(app);
   const io = socketIo(server, {
     cors: {
-      origin: "*" // Adjust for production!
+      origin: "*" // not suitable for prod
     }
   });
   io.on('connection', (socket) => {
