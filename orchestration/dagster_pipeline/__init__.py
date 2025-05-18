@@ -6,12 +6,12 @@ from dagster_dbt import (
 )
 from dagster_pipeline.assets import jolpi
 from dagster_snowflake import snowflake_resource
-from dagster_pipeline.source_assets import kafka_snowflake
+from dagster_pipeline.source_assets import snowflake
 from dagster_pipeline.assets import dbt
 from dagster_pipeline.schedules import staging_schedule
 
 defs = Definitions(
-    assets= [*jolpi.jolpi_assets_list, *dbt.dbt_assets_list, kafka_snowflake.stg_laps, kafka_snowflake.stg_telemetry],
+    assets= [*jolpi.jolpi_assets_list, *dbt.dbt_assets_list, *snowflake.snowflake_source_assets_list],
     schedules=[staging_schedule],
     resources= {
         "snowflake_resource":

@@ -11,3 +11,4 @@ stg_telemetry = SourceAsset(
     group_name="f1_staging",
     description="Raw lap telemetry data ingested via Kafka connector to Snowflake.",
 )
+
