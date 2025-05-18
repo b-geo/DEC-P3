@@ -3,7 +3,10 @@ node_modules/
 __pycache__/
 *.py[cod]
 *$py.class
-dagster/logs/
+orchestration/dagster_pipeline/logs/
+dbt/main/target/
+dbt/main/dbt_packages/
+dbt/main/logs/
 
 # C extensions
 *.so
