@@ -1,8 +1,8 @@
 terraform {
   backend "s3" {
-    bucket         = var.terraform_bucket
-    key            = var.terraform_bucket_key
-    region         = var.aws_region
+    bucket         = "tfstate-bgeo"
+    key            = "ecs-app-bgeo/terraform.tfstate"
+    region         = "ap-southeast-2"
     encrypt        = true
   }
 
@@ -15,5 +15,5 @@ terraform {
 }
 
 provider "aws" {
-  region = var.aws_region
+  region = "ap-southeast-2"
 }
