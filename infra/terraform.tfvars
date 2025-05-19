@@ -1,0 +1,10 @@
+ecr_repo_name = "decp33"
+image_mutability = "MUTABLE"
+ecs_cluster_name = "decp33"
+aws_region="ap-southeast-2"
+instance_type="t2.micro"
+ec2_max_size=3
+ec2_min_size=1
+dotenv_bucket="decp3"
+terraform_bucket="tfstate-bgeo"
+terraform_bucket_key="ecs-app-bgeo/terraform.tfstate"
