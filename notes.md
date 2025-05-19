@@ -127,4 +127,6 @@ DEC-P3
  ┃ ┗ streaming_dashboard
 
  maually create s3 with .env and role for that to use in ecs task
+
+ only 90 days saving of tf outputs with artifact
  

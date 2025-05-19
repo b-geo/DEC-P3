@@ -3,8 +3,13 @@ variable aws_region {
   type = string
 }
 
-variable "ecr_repo_name" {
-  description = "Name of the ECR repository"
+variable "ecr_dashbaord_repo_name" {
+  description = "Name of the ECR repository used for dashbaord"
+  type        = string
+}
+
+variable "ecr_orchestration_repo_name" {
+  description = "Name of the ECR repository used for pipeline orchestration"
   type        = string
 }
 
@@ -38,15 +43,5 @@ variable "ec2_min_size" {
 
 variable "dotenv_bucket" {
   description = "Name of the S3 bucket containing .env file"
-  type        = string
-}
-
-variable "terraform_bucket" {
-  description = "Name of the S3 bucket containing terraform.tfstate"
-  type        = string
-}
-
-variable "terraform_bucket_key" {
-  description = "Path within the bucket of terraform.tfstate"
   type        = string
 }

@@ -1,0 +1,64 @@
+name: Build and Push Docker Images
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'orchestration/**'
+      - 'presentation\streaming_dashboard/**'
+
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    # Get Terraform outputs from previous workflow
+    - name: Download Terraform outputs
+      uses: actions/download-artifact@v3
+      with:
+        name: terraform-outputs
+
+    - name: Set ECR URLs from outputs
+      id: tf_outputs
+      run: |
+        ORCHESTRATION_URL=$(jq -r '.orchestration_repo_url.value' tf_outputs.json)
+        DASHBOARD_URL=$(jq -r '.dashboard_repo_url.value' tf_outputs.json)
+        echo "orchestration_url=$ORCHESTRATION_URL" >> $GITHUB_OUTPUT
+        echo "dashboard_url=$DASHBOARD_URL" >> $GITHUB_OUTPUT
+
+    # Login to ECR
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+
+    # Build and push first image
+    - name: Build and push orchestration image
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: ${{ steps.tf_outputs.outputs.orchestration_url }}
+        IMAGE_TAG: ${{ github.sha }}
+      run: |
+        docker build -t $ECR_REPOSITORY:$IMAGE_TAG -f orchestration/Dockerfile .
+        docker push $ECR_REPOSITORY:$IMAGE_TAG
+
+    # Build and push second image
+    - name: Build and push dashboard image
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: ${{ steps.tf_outputs.outputs.dashboard_url }}
+        IMAGE_TAG: ${{ github.sha }}
+      run: |
+        docker build -t $ECR_REPOSITORY:$IMAGE_TAG -f presentation/streaming_dashboard/Dockerfile .
+        docker push $ECR_REPOSITORY:$IMAGE_TAG
+
+    - name: Update Terraform Task Definitions
+      working-directory: infra
+      run: |
+        terraform init
+        terraform apply -auto-approve \
+          -var="image_tag=${{ github.sha }}" \
+          -target=aws_ecs_task_definition.pipeline_orchestration \
+          -target=aws_ecs_task_definition.race_dashboard
