@@ -1,6 +1,0 @@
-locations:
-  - location_name: f1_pipeline
-    code_source:
-      package_name: dagster_pipeline
-    working_directory: ./orchestration
-

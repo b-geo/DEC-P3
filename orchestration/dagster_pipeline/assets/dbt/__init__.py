@@ -1,14 +1,14 @@
+import os
 from typing import List
 from pathlib import Path
 from dagster import (
-    AssetsDefinition,
-    file_relative_path
+    AssetsDefinition
 )
 from dagster_dbt import load_assets_from_dbt_manifest
 
-DBT_PROJECT_DIR = file_relative_path(__file__, "main")
-MANIFEST_PATH = file_relative_path(__file__, "main/target/manifest.json")
-DBT_PROFILES_DIR = file_relative_path(__file__, "main")
+DBT_PROJECT_DIR = os.environ['DBT_PROJECT_DIR']
+MANIFEST_PATH = os.environ['MANIFEST_PATH']
+DBT_PROFILES_DIR = os.environ['DBT_PROFILES_DIR']
 
 dbt_assets_list: List[AssetsDefinition] = load_assets_from_dbt_manifest(
     manifest=Path(MANIFEST_PATH),
