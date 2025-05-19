@@ -3,7 +3,7 @@ variable aws_region {
   type = string
 }
 
-variable "ecr_dashbaord_repo_name" {
+variable "ecr_dashboard_repo_name" {
   description = "Name of the ECR repository used for dashbaord"
   type        = string
 }
