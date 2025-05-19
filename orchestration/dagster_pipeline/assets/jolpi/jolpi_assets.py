@@ -9,7 +9,7 @@ api = JolpiAPI()
     key_prefix="f1_staging",
     required_resource_keys={"snowflake_resource"}
 )
-def stg_events(context) -> None:
+def stg_events(context: OpExecutionContext) -> None:
     df = api.get_events()
     with context.resources.snowflake_resource.get_connection() as conn:
         upsert_to_snowflake(df, "stg_events", conn, context, merge_keys=["eventid"], pk="eventid")

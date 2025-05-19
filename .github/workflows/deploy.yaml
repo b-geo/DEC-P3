@@ -92,7 +92,9 @@ jobs:
             CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
             echo "Changed files:"
             echo "$CHANGED_FILES"
-            echo "changed_files=$CHANGED_FILES" >> "$GITHUB_OUTPUT"
+            echo "changed_files<<EOF" >> "$GITHUB_OUTPUT"
+            echo "$CHANGED_FILES" >> "$GITHUB_OUTPUT"
+            echo "EOF" >> "$GITHUB_OUTPUT"
 
             echo "orchestration_changed=false" >> "$GITHUB_OUTPUT"
             echo "dashboard_changed=false" >> "$GITHUB_OUTPUT"
