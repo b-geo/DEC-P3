@@ -125,4 +125,6 @@ DEC-P3
  ┣ presentation
  ┃ ┣ snowflake_streamlit
  ┃ ┗ streaming_dashboard
+
+ maually create s3 with .env and role for that to use in ecs task
  
