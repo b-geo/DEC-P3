@@ -17,7 +17,7 @@ jobs:
 
     # Download Terraform outputs from the Infra workflow
     - name: Download Terraform outputs
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: terraform-outputs
 
