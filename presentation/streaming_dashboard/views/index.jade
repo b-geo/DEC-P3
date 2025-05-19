@@ -1,12 +1,12 @@
 extends layout
 
 block head
-  title F1 Live Tracking
+  title Live Dashbaord
   meta(name="viewport", content="width=device-width, initial-scale=1.0")
   link(rel="stylesheet", href="/stylesheets/dashboard.css")
 
 block content
-  h1 Melbourne F1 Track Live
+  h1 AUSTRALIAN GRAND PRIX 2025
   #connectionStatus.connection-status.disconnected Disconnected
   
   .container#canvasContainer
@@ -14,7 +14,6 @@ block content
     #loading.loading Loading track data...
   
   #legend.legend
-    // Car legends will be dynamically added here
   
   .leaderboard
     h2 Live Leaderboard
@@ -27,7 +26,6 @@ block content
           th Speed
           th Last Update
       tbody#leaderboardBody
-        // Leaderboard data will be dynamically added here
 
 block scripts
   script(src="/socket.io/socket.io.js")
