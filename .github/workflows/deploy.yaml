@@ -114,7 +114,8 @@ jobs:
           ECR_REPOSITORY: ${{ steps.tf_outputs.outputs.orchestration_url }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build -t $ECR_REPOSITORY:$IMAGE_TAG -f orchestration/Dockerfile .
+          cd orchestration
+          docker build --platform=linux/amd64 -t $ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REPOSITORY:$IMAGE_TAG
 
       - name: Build and push dashboard image
@@ -124,7 +125,8 @@ jobs:
           ECR_REPOSITORY: ${{ steps.tf_outputs.outputs.dashboard_url }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build -t $ECR_REPOSITORY:$IMAGE_TAG -f presentation/streaming_dashboard/Dockerfile .
+          cd presentation/streaming_dashboard
+          docker build --platform=linux/amd64 -t $ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REPOSITORY:$IMAGE_TAG
 
       - name: Set up Terraform
