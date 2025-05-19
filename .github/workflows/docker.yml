@@ -20,6 +20,7 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: terraform-outputs
+        path: infra/tf_outputs.json
 
     - name: Set ECR URLs from outputs
       id: tf_outputs
