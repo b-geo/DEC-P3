@@ -3,6 +3,8 @@ name: Provision Infrastructure
 on:
   push:
     paths:
+      - 'orchestration/**'
+      - 'presentation\streaming_dashboard/**'
       - 'infra/**'
     branches:
       - main

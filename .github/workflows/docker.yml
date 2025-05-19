@@ -1,21 +1,21 @@
 name: Build and Push Docker Images
 
 on:
-  push:
-    branches: [ main ]
-    paths:
-      - 'orchestration/**'
-      - 'presentation\streaming_dashboard/**'
-
+  workflow_run:
+    workflows: ["Provision Infrastructure"]
+    types:
+      - completed
 
 jobs:
   build-and-push:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    # Get Terraform outputs from previous workflow
+    # Download Terraform outputs from the Infra workflow
     - name: Download Terraform outputs
       uses: actions/download-artifact@v3
       with:
@@ -26,30 +26,48 @@ jobs:
       run: |
         ORCHESTRATION_URL=$(jq -r '.orchestration_repo_url.value' tf_outputs.json)
         DASHBOARD_URL=$(jq -r '.dashboard_repo_url.value' tf_outputs.json)
-        echo "orchestration_url=$ORCHESTRATION_URL" >> $GITHUB_OUTPUT
-        echo "dashboard_url=$DASHBOARD_URL" >> $GITHUB_OUTPUT
+        echo "orchestration_url=$ORCHESTRATION_URL" >> "$GITHUB_OUTPUT"
+        echo "dashboard_url=$DASHBOARD_URL" >> "$GITHUB_OUTPUT"
 
-    # Login to ECR
     - name: Login to Amazon ECR
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
 
-    # Build and push first image
+    - name: Detect changed paths
+      id: detect_changes
+      run: |
+        git fetch origin ${{ github.event.workflow_run.head_branch }}
+        git checkout ${{ github.event.workflow_run.head_sha }}
+        CHANGED_FILES=$(git diff-tree --no-commit-id --name-only -r ${{ github.event.workflow_run.head_sha }})
+        echo "changed_files=$CHANGED_FILES" >> "$GITHUB_OUTPUT"
+
+        echo "orchestration_changed=false" >> "$GITHUB_OUTPUT"
+        echo "dashboard_changed=false" >> "$GITHUB_OUTPUT"
+
+        if echo "$CHANGED_FILES" | grep -q "^orchestration/"; then
+          echo "orchestration_changed=true" >> "$GITHUB_OUTPUT"
+        fi
+
+        if echo "$CHANGED_FILES" | grep -q "^presentation/streaming_dashboard/"; then
+          echo "dashboard_changed=true" >> "$GITHUB_OUTPUT"
+        fi
+
     - name: Build and push orchestration image
+      if: steps.detect_changes.outputs.orchestration_changed == 'true'
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         ECR_REPOSITORY: ${{ steps.tf_outputs.outputs.orchestration_url }}
-        IMAGE_TAG: ${{ github.sha }}
+        IMAGE_TAG: ${{ github.event.workflow_run.head_commit.id }}
       run: |
         docker build -t $ECR_REPOSITORY:$IMAGE_TAG -f orchestration/Dockerfile .
         docker push $ECR_REPOSITORY:$IMAGE_TAG
 
-    # Build and push second image
     - name: Build and push dashboard image
+      if: steps.detect_changes.outputs.dashboard_changed == 'true'
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         ECR_REPOSITORY: ${{ steps.tf_outputs.outputs.dashboard_url }}
-        IMAGE_TAG: ${{ github.sha }}
+        IMAGE_TAG: ${{ github.event.workflow_run.head_commit.id }}
       run: |
         docker build -t $ECR_REPOSITORY:$IMAGE_TAG -f presentation/streaming_dashboard/Dockerfile .
         docker push $ECR_REPOSITORY:$IMAGE_TAG
@@ -59,6 +77,6 @@ jobs:
       run: |
         terraform init
         terraform apply -auto-approve \
-          -var="image_tag=${{ github.sha }}" \
+          -var="image_tag=${{ github.event.workflow_run.head_commit.id }}" \
           -target=aws_ecs_task_definition.pipeline_orchestration \
           -target=aws_ecs_task_definition.race_dashboard
