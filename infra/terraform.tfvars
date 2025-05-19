@@ -1,5 +1,5 @@
 ecr_dashboard_repo_name="ecr_dsh"
-ecr_orchestation_repo_name="ecr_orch"
+ecr_orchestration_repo_name="ecr_orch"
 image_mutability = "MUTABLE"
 ecs_cluster_name = "decp33"
 aws_region="ap-southeast-2"
