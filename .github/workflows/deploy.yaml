@@ -87,19 +87,21 @@ jobs:
       - name: Detect changed paths
         id: detect_changes
         run: |
-          CHANGED_FILES=$(git diff-tree --no-commit-id --name-only -r ${{ github.sha }})
-          echo "changed_files=$CHANGED_FILES" >> "$GITHUB_OUTPUT"
+            CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
+            echo "Changed files:"
+            echo "$CHANGED_FILES"
+            echo "changed_files=$CHANGED_FILES" >> "$GITHUB_OUTPUT"
 
-          echo "orchestration_changed=false" >> "$GITHUB_OUTPUT"
-          echo "dashboard_changed=false" >> "$GITHUB_OUTPUT"
+            echo "orchestration_changed=false" >> "$GITHUB_OUTPUT"
+            echo "dashboard_changed=false" >> "$GITHUB_OUTPUT"
 
-          if echo "$CHANGED_FILES" | grep -q "^orchestration/"; then
+            if echo "$CHANGED_FILES" | grep -q "^orchestration/"; then
             echo "orchestration_changed=true" >> "$GITHUB_OUTPUT"
-          fi
+            fi
 
-          if echo "$CHANGED_FILES" | grep -q "^presentation/streaming_dashboard/"; then
+            if echo "$CHANGED_FILES" | grep -q "^presentation/streaming_dashboard/"; then
             echo "dashboard_changed=true" >> "$GITHUB_OUTPUT"
-          fi
+            fi
 
       - name: Build and push orchestration image
         if: steps.detect_changes.outputs.orchestration_changed == 'true'
