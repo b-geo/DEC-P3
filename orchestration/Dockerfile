@@ -2,12 +2,6 @@ FROM python:3.12-slim
 
 WORKDIR /usr/src/app
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    git \
-    gcc \
-    python3-dev \
-    && rm -rf /var/lib/apt/lists/*
-
 RUN pip install --no-cache-dir \
     "dbt-core~=1.7.13" \
     "dbt-snowflake~=1.7.4" \
@@ -18,7 +12,9 @@ RUN pip install --no-cache-dir \
     "dagster-snowflake-pandas==0.22.9" \
     "snowplow-tracker==0.10.0" \
     "pandas==2.2.1" \
-    "websockets==11.0.3"
+    "websockets==10.4" \
+    "tornado==6.2"
+
 
 COPY . .
 
