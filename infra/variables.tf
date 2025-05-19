@@ -45,3 +45,9 @@ variable "dotenv_bucket" {
   description = "Name of the S3 bucket containing .env file"
   type        = string
 }
+
+variable "image_tag" {
+  description = "Image tag for ecr image"
+  type        = string
+  default     = "latest"
+}
