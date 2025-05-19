@@ -64,7 +64,7 @@ resource "aws_ecs_task_definition" "race_dashboard" {
   container_definitions = jsonencode([
     {
       name      = "race_dashboard"
-      image     = "${aws_ecr_repository.dashboard.repository_url}:${var.image_tag}"
+      image     = "${aws_ecr_repository.dashboard_repo.repository_url}:${var.image_tag}"
       cpu       = 0
       essential = true
       portMappings = [
@@ -103,7 +103,7 @@ resource "aws_ecs_task_definition" "pipeline_orchestration" {
   container_definitions = jsonencode([
     {
       name      = "f1_orchestration"
-      image     = "${aws_ecr_repository.orchestration.repository_url}:${var.image_tag}"
+      image     = "${aws_ecr_repository.orchestration_repo.repository_url}:${var.image_tag}"
       cpu       = 0
       essential = true
       portMappings = [

@@ -10,7 +10,6 @@ export DBT_PROFILES_DIR=${DBT_PROJECT_DIR:-"/usr/src/app/dagster_pipeline/assets
 export MANIFEST_PATH=${MANIFEST_PATH:-"/usr/src/app/dagster_pipeline/assets/dbt/main/target/manifest.json"}
 
 cd /usr/src/app/dagster_pipeline/assets/dbt/main
-
 dbt compile
 
 cd /usr/src/app
