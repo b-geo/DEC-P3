@@ -1,6 +1,8 @@
 name: Infrastructure and Docker Deployment
 
 on:
+  # Can be manually triggered
+  workflow_dispatch: {}
   push:
     paths:
       - 'orchestration/**'
