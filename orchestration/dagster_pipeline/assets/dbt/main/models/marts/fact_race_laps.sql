@@ -35,7 +35,7 @@ select
   stg_laps.record_content:"Stint"::NUMBER as driver_stint,
   to_timestamp((stg_laps.record_content:"LapStartDate"::NUMBER) / 1000) as lap_start,
   dateadd(
-    millisecond, 
+    millisecond,
     stg_laps.record_content:"LapTime"::NUMBER,
     to_timestamp((stg_laps.record_content:"LapStartDate"::NUMBER) / 1000)
   ) as lap_end,
