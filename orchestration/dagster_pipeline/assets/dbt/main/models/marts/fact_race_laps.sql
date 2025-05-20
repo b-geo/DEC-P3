@@ -34,6 +34,11 @@ select
   stg_laps.record_content:"TyreLife"::NUMBER as tyre_life_laps,
   stg_laps.record_content:"Stint"::NUMBER as driver_stint,
   to_timestamp((stg_laps.record_content:"LapStartDate"::NUMBER) / 1000) as lap_start,
+  dateadd(
+    millisecond,
+    stg_laps.record_content:"LapTime"::NUMBER,
+    to_timestamp((stg_laps.record_content:"LapStartDate"::NUMBER) / 1000)
+  ) as lap_end,
   to_timestamp((stg_laps.record_metadata:"CreateTime"::NUMBER) / 1000) as last_updated
 from {{ source("f1_staging", "stg_laps") }} as stg_laps
 left join {{ ref("dim_driver") }} as dim_driver

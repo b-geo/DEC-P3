@@ -81,5 +81,8 @@ models:
       - name: lap_start
         description: The date and time of the start of the lap
 
+      - name: lap_end
+        description: The date and time of the end of the lap
+
       - name: last_updated
         description: The last updated date for that row
