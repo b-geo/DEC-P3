@@ -78,6 +78,8 @@
 - dbt snapshot for slowly changing dimensions
 - race results based on fact_laps
 - dbt tests
+- first_practice etc should be first_practice_date since date
+- STANDINGS tables should have event sk as well
 
 **unsure
 - should standings by fact table? probably.

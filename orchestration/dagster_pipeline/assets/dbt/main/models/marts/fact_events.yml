@@ -19,6 +19,9 @@ models:
           - not_null
           - unique
 
+      - name: sk_circuit
+        description: Foreign key to the circuit dimension table
+
       - name: season_year
         description: The seson in which the event took place, represented as the year
 
@@ -33,9 +36,6 @@ models:
 
       - name: race_time
         description: The time of the race
-
-      - name: sk_circuit
-        description: Foreign key to the circuit dimension table
 
       - name: event_url
         description: Wikipedia URL of the event
