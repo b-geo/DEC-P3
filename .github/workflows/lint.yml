@@ -21,27 +21,13 @@ jobs:
         run: |
           pip install dbt-snowflake sqlfluff sqlfluff-templater-dbt black
 
-      # saves a bit of time if it fails here before doing fix
       - name: Run SQLFluff lint
         run: |
           cd orchestration/dagster_pipeline/assets/dbt/main
-          sqlfluff lint models --fail-on-non-fixable models
-
-      # Then attempt to fix what can be fixed automatically
-      - name: Run SQLFluff fix
-        id: sqlfluff-fix
-        run: |
-          cd orchestration/dagster_pipeline/assets/dbt/main
-          sqlfluff fix --force --fixed-suffix fixed models
-          echo "changes_made=$(git diff --name-only | wc -l | tr -d ' ')" >> $GITHUB_OUTPUT
-
-      # Check if fixes were made and fail if needed
-      - name: Check for formatting changes
-        if: steps.sqlfluff-fix.outputs.changes_made != '0'
-        run: |
-          git diff
-          echo "::error::SQL formatting issues found. Run 'sqlfluff fix' locally or push the suggested changes."
-          exit 1
+          sqlfluff lint models/ || {
+            echo "::error::SQL formatting issues found. Run sqlfluff fix locally."
+            exit 1
+          }
 
       - name: Auto-fix Python with Black
         run: black .
