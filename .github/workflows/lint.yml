@@ -1,4 +1,4 @@
-name: Lint and Validate dbt SQL
+name: Lint SQL and Python
 
 on:
   # Can be manually triggered
@@ -53,5 +53,5 @@ jobs:
       - name: Commit Python fixes
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-            commit_message: "style: Auto-fix Python formatting (Black)"
+            commit_message: "Github Actions Linting (Black)"
             file_pattern: "*.py"

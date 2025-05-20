@@ -110,7 +110,7 @@ FOLDER STRUCTURE
 aws configure //to login
 aws ecr get-login-password --region ap-southeast-2 | docker login --username AWS --password-stdin 850995533399.dkr.ecr.ap-southeast-2.amazonaws.com
 docker build -t decp3/orchestration .
-docker build --no-cache --platform=linux/amd64 -t decp3/orchestration .
+docker build --no-cache --platform=linux/amd64 -t tester .
 docker tag decp3/f1_realtime_dashboard:latest 850995533399.dkr.ecr.ap-southeast-2.amazonaws.com/decp3/f1_realtime_dashboard:latest
 docker push 850995533399.dkr.ecr.ap-southeast-2.amazonaws.com/decp3/f1_realtime_dashboard:latest
 
