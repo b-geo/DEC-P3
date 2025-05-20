@@ -8,7 +8,8 @@ exclude_rules = L016,L031,L034
 large_file_skip_byte_limit = 0
 
 [sqlfluff:templater:dbt]
-project_dir = ./
+project_dir = .
+profiles_dir = .
 
 [sqlfluff:layout:type:alias_expression]
 # We want non-default spacing _before_ the alias expressions.
@@ -29,15 +30,15 @@ allow_implicit_indents = True
 
 [sqlfluff:rules:capitalisation.keywords]
 # Keywords Capitalization
-capitalisation_policy = upper
+capitalisation_policy = lower
 
 [sqlfluff:rules:capitalisation.functions]
 # Function Name Capitalization
-extended_capitalisation_policy = upper
+extended_capitalisation_policy = lower
 
 [sqlfluff:rules:capitalisation.literals]
 # Null & Boolean Literals
-capitalisation_policy = upper
+capitalisation_policy = lower
 
 [sqlfluff:rules:references.special_chars]
 # Special Characters in Identifiers
