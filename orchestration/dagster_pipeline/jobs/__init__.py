@@ -1,5 +1,6 @@
 from dagster import define_asset_job, AssetSelection
 
+#materialize all staging assets every second day
 full_staging_job = define_asset_job(
-    name="weekly_refresh", selection=AssetSelection.groups("f1_staging")
+    name="every second day - staging", selection=AssetSelection.groups("f1_staging")
 )

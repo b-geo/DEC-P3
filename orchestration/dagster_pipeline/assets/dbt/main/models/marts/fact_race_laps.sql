@@ -9,8 +9,8 @@
 select
 	{{ dbt_utils.generate_surrogate_key(
 		[
-			'dim_driver.sk_driver',
-			'fact_events.sk_circuit',
+			'fact_events.sk_event',
+      'dim_driver.sk_driver',
 			'stg_laps.record_content:"LapNumber"::number'
 			]) 
 	}} as sk_race_lap,
