@@ -11,6 +11,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -21,9 +23,25 @@ jobs:
         run: |
           pip install dbt-snowflake sqlfluff sqlfluff-templater-dbt black
 
+      - name: Cache dbt packages
+        uses: actions/cache@v3
+        with:
+          path: orchestration/dagster_pipeline/assets/dbt/main/dbt_packages
+          key: ${{ runner.os }}-dbt-deps-${{ hashFiles('orchestration/dagster_pipeline/assets/dbt/main/packages.yml') }}
+          restore-keys: |
+            ${{ runner.os }}-dbt-deps-
+
       - name: Run SQLFluff lint
+        env:
+          SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
+          SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
+          SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+          SNOWFLAKE_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
+          SNOWFLAKE_DB: ${{ secrets.SNOWFLAKE_DB }}
+          SNOWFLAKE_ROLE: ${{ secrets.SNOWFLAKE_ROLE }}
         run: |
           cd orchestration/dagster_pipeline/assets/dbt/main
+          dbt deps
           sqlfluff lint models/ || {
             echo "::error::SQL formatting issues found. Run sqlfluff fix locally."
             exit 1
@@ -37,22 +55,3 @@ jobs:
         with:
             commit_message: "style: Auto-fix Python formatting (Black)"
             file_pattern: "*.py"
-
-      - name: Cache dbt packages
-        uses: actions/cache@v3
-        with:
-            path: orchestration/dagster_pipeline/assets/dbt/main/dbt_packages
-            key: ${{ runner.os }}-dbt-deps-${{ hashFiles('orchestration/dagster_pipeline/assets/dbt/main/packages.yml') }}
-
-      - name: Test dbt compilation (requires Snowflake connection)
-        env:
-          SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
-          SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
-          SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
-          SNOWFLAKE_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
-          SNOWFLAKE_DB: ${{ secrets.SNOWFLAKE_DB }}
-          SNOWFLAKE_ROLE: ${{ secrets.SNOWFLAKE_ROLE }}
-        run: |
-          cd orchestration/dagster_pipeline/assets/dbt/main
-          dbt deps
-          dbt compile
