@@ -15,10 +15,7 @@ dbt_assets_list: List[AssetsDefinition] = load_assets_from_dbt_manifest(
 )
 
 dbt_assets_list_automaterialize = [
-    asset.with_policy(
-        AutoMaterializePolicy.eager()
-    )
-    for asset in dbt_assets_list
+    asset.with_policy(AutoMaterializePolicy.eager()) for asset in dbt_assets_list
 ]
 
 __all__ = ["dbt_assets_list_automaterialize", "DBT_PROJECT_DIR", "DBT_PROFILES_DIR"]
