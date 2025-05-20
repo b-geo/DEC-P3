@@ -19,11 +19,11 @@ models:
           - not_null
           - unique
 
-      - name: constructor_url
-        description: Wikipedia URL of the constructor
-
       - name: constructor_name
         description: The constructor's name
+
+      - name: constructor_url
+        description: Wikipedia URL of the constructor
 
       - name: constructor_nationality
         description: The origin country of the constructor
