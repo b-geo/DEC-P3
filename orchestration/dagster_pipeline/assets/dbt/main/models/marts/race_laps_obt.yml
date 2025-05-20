@@ -81,6 +81,9 @@ models:
       - name: lap_start
         description: The date and time of the start of the lap
 
+      - name: lap_end
+        description: The date and time of the end of the lap
+
       - name: driver_id
         description: The natural key of the driver
         tests:
