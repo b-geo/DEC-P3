@@ -14,7 +14,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.10"
+          python-version: "3.12"
 
       - name: Install dbt and SQLFluff
         run: |
@@ -22,7 +22,7 @@ jobs:
 
       - name: Run SQLFluff lint
         run: |
-          sqlfluff lint --dialect snowflake models/
+          sqlfluff lint --dialect snowflake orchestration/dagster_pipeline/assets/dbt/main/models
 
       - name: Test dbt compilation (requires Snowflake connection)
         env:
@@ -33,5 +33,5 @@ jobs:
           SNOWFLAKE_DB: ${{ secrets.SNOWFLAKE_DB }}
           SNOWFLAKE_ROLE: ${{ secrets.SNOWFLAKE_ROLE }}
         run: |
-          cd your_dbt_project
+          cd orchestration/dagster_pipeline/assets/dbt/main
           dbt compile
