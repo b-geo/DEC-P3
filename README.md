@@ -27,11 +27,13 @@
 - run terra locally to get state and upload to s3 bucket
     - terra will set up ecr, ecs, ecs tasks
 - upload .env to github bucket
+- define vars for tf
 - aws account
 - backfill based on round
 - snowflake account
 - confluent account
     - set up snowflake role based on guide
+- providing the directories stay the same no need to pip install since it'll be part of docker, then with the nodejs one packages are installed with that too
 
 # architecture diagram
 
@@ -69,7 +71,15 @@
 - tasks and containers for the realtime dashboard and dagster orchestration are separate. dashboard is designed with an ec2 cluster and dagster is fargate - this is purely because i wanted to challenge myself a bit with terraform and dagster needed more than the free tier level. same reason i didn't use dagster plus.
 
 # ci/cd
-
+- two workflows
+    - deploy
+        - build
+        - terraform
+    - linting
+- linting runs on pull requests
+- terraform runs on merges to main
+- the building and pushing of the docker container will only happen if there are changes to folder that would affect either docker image.
+- linting is sqlfluff and black. an error will force the developer to fix locally then remerge.
 
 **if i get time
 -  s3 bucket .env is read to use in github actions instead of using github secrets
