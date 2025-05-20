@@ -8,7 +8,7 @@ models:
           group: f1_marts
     columns:
       - name: sk_race_lap
-        description: The surrogate key of the lap for a race
+        description: The surrogate key of the lap, for a driver, within a race
         tests:
           - not_null
           - unique

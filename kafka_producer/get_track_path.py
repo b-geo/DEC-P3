@@ -5,7 +5,7 @@ import json
 import fastf1
 import numpy as np
 
-
+# currently static path to australian grand prix 2025
 session = fastf1.get_session(2025, "Australia", "R")
 session.load()
 lap = session.laps.pick_fastest()
