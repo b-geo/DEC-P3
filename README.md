@@ -83,9 +83,64 @@ Entity data covers essentailly the metadata of a race - driver details, driver c
 }
 ```
 
-
 # how to setup
-- github secrets
+**To get started, you will need:**
+- An AWS account (https://aws.amazon.com/resources/create-account/)
+- AWS CLI - access key and secret access key method (https://docs.aws.amazon.com/cli/latest/userguide/getting-started-quickstart.html)
+- A Confluent account (https://www.confluent.io/get-started/)
+- A Snowflake account (https://signup.snowflake.com/)
+- Terraform installed locally (https://developer.hashicorp.com/terraform/install)
+
+Once you have set these up, you'll want to fork this repo, and enable workflows. Github Actions will handle the AWS infrastructure provisioning, along with building and pushing the Docker image to ECR, but before you use the workflows there's a few things to set up.
+
+## Github Secrets
+Github Actions relies on the following secrets:
+- AWS_ACCESS_KEY_ID
+- AWS_SECRET_ACCESS_KEY
+- SNOWFLAKE_ACCOUNT
+- SNOWFLAKE_DB
+- SNOWFLAKE_PASSWORD
+- SNOWFLAKE_ROLE
+- SNOWFLAKE_USER
+- SNOWFLAKE_WAREHOUSE
+
+The reason Snowflake details are needed is because as part of SQLFluff's checks it will compile dbt - which requires those details.
+
+## Snowflake Database and Schemas
+Set up Snowlfake with:
+- A Database called "f1"
+- A Scheme called "staging"
+- A Schema  called "marts"
+
+You may choose to change these and this is done in ```orchestration\dagster_pipeline\__init__.py```, ```orchestration\dagster_pipeline\assets\dbt\main\models\sources.yml``` and ```orchestration\dagster_pipeline\assets\dbt\main\profiles.yml```.
+
+## Confluent 
+### Cluster and Topics
+1. Create a new Confluent cluster
+2. Set up two Topics, "f1_laps" and f1_tele". Both of these Topics required 20 partitions (the amount of drivers). Messages uses the driver code as a key and this ensures the correct order for messages - important when updating live position.
+### Snowflake Connector
+1. Add a new Snowflake Sink Connector (https://docs.confluent.io/cloud/current/connectors/cc-snowflake-sink/cc-snowflake-sink.html?ajs_aid=15f7888d-2eec-438c-9c48-1f118dba39e4&ajs_uid=5710910#cc-snowflake-db-sink-gen-key-pair)
+2. Map f1_laps Topic to stg_laps table in Snowflake.
+3. Map f1_tele Topic to stg_telemetry in Snowflake.
+
+## AWS S3 .env
+ECS tasks/services will rely on a .env in a S3 bucket for environment variables. Terraform then uses the location of this when creating ECS tasks.
+1. Use the template.env in this project, fill in your details, then rename .env. This assumes you have set up an account on Snowflake and Confluent.
+2. Create a new S3 bucket and upload your .env to this.
+3. This is then referred to in terraform.tfvars.
+
+## Terraform state file
+Terraform, via Github Actions has been configured to manage state with its ```terraform.tfstate``` file located on S3. First Terraform must be run locally, then you can upload the state file to S3. To do this:
+1. Clone this repo
+2. Edit terraform.tfvars as needed
+3. Run aws congifure to login to you AWS account.
+4. Run ```terraform init```
+5. Run ```terraform apply```
+6. Once this is complete the infrastructure folder that houses the Terraform files should have an additional file called ```terraform.tfstate```.
+7. Upload this to a separate S3 bucket and configure main.tf (of your forked repo) with your bucket name.
+
+
+
 - run terra locally to get state and upload to s3 bucket
     - terra will set up ecr, ecs, ecs tasks
 - upload .env to github bucket

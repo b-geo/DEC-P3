@@ -41,13 +41,11 @@ resource "aws_iam_role_policy_attachment" "s3_dotenv_s3_access" {
   policy_arn = aws_iam_policy.s3_env_file_access.arn
 }
 
-# Standard ECS execution role policies
 resource "aws_iam_role_policy_attachment" "s3_dotenv_ecs_execution" {
   role       = aws_iam_role.s3_dotenv.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
-# Then in your task definition:
 resource "aws_ecs_task_definition" "race_dashboard" {
   family                   = "race_dashboard"
   execution_role_arn       = aws_iam_role.s3_dotenv.arn

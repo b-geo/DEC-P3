@@ -129,4 +129,8 @@ DEC-P3
  maually create s3 with .env and role for that to use in ecs task
 
  only 90 days saving of tf outputs with artifact
+
+ TODO
+ - ADD EXTRA CHART OF PIT IN TIMES LIKE  TYRE ONE
+ - ADD ADDITIONAL ROUNDS
  
