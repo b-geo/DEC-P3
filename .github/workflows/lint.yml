@@ -25,6 +25,7 @@ jobs:
         with:
           node-version: '22'
           cache: 'npm'
+          cache-dependency-path: presentation/streaming_dashboard/package-lock.json
 
       - name: Install packages required for Python and SQL linting
         run: |
@@ -34,7 +35,7 @@ jobs:
         working-directory: presentation/streaming_dashboard
         run: |
           npm install xo
-          npx xo "**/*.js" --ignore-pattern="**/node_modules/**" --no-eslintrc
+          npx xo "**/*.js" --ignore-pattern="**/node_modules/**" --no-eslintrc --fix
 
       - name: Cache dbt packages
         uses: actions/cache@v3
