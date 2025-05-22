@@ -5,11 +5,11 @@ WORKDIR /usr/src/app
 RUN pip install --no-cache-dir \
     "dbt-core~=1.7.13" \
     "dbt-snowflake~=1.7.4" \
-    "dagster==1.6.9" \
-    "dagster-cloud==1.6.9" \
-    "dagster-webserver==1.6.9" \
-    "dagster_dbt==0.22.9" \
-    "dagster-snowflake-pandas==0.22.9" \
+    "dagster==1.7.8" \
+    "dagster-cloud==1.7.8" \
+    "dagster-webserver==1.7.8" \
+    "dagster-dbt==0.23.8" \
+    "dagster-snowflake-pandas==0.23.8" \
     "snowplow-tracker==0.10.0" \
     "pandas==2.2.1" \
     "websockets==10.4" \
