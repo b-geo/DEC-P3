@@ -136,11 +136,20 @@ jobs:
         with:
           terraform_version: 1.5.7
 
-      - name: Update Terraform Task Definitions
+      - name: Update Dashboard Task Definition
+        if: steps.detect_changes.outputs.dashboard_changed == 'true'
         working-directory: infra
         run: |
           terraform init
           terraform apply -auto-approve \
             -var="image_tag=${{ github.sha }}" \
-            -target=aws_ecs_task_definition.pipeline_orchestration \
             -target=aws_ecs_task_definition.race_dashboard
+
+      - name: Update Pipeline Orchestration Task Definition
+        if: steps.detect_changes.outputs.orchestration_changed == 'true'
+        working-directory: infra
+        run: |
+          terraform init
+          terraform apply -auto-approve \
+            -var="image_tag=${{ github.sha }}" \
+            -target=aws_ecs_task_definition.pipeline_orchestration

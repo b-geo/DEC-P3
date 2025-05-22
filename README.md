@@ -4,7 +4,7 @@
 
 
  # 🏎️ Introduction
-Once upon a time it was enough to know lap times and speed, but F1 has now evolved to utilise data in all aspects of decision making and evaluation. Not only do teams require this data, but spectators equally enjoy the insights that can be extracted. This project ultimately converges on two dashboards, a realtime race dashboard and a post race summary dashboard. The depth of data is deeper than what is provided in the two dashbaords and this can be leveraged at any time via Snowflake, the datawarhouse for this project.
+Once upon a time it was enough to know lap times and speed, but F1 has now evolved to utilise data in all aspects of decision making and evaluation. Not only do teams require this data, but spectators equally enjoy the insights that can be extracted. This project ultimately converges on two dashboards, a realtime race dashboard and a post race summary dashboard. The depth of data housed on Snowflake is deeper than what is currently provided on these two dashbaords.
 
  # The Components
 You will notice these main folders in the root directory, here is a guide to their contents.
@@ -28,38 +28,9 @@ You will notice these main folders in the root directory, here is a guide to the
 
 # Source Data
 ## Event Data
-This is data captured during the race and streamed by F1.com. There are two streams of event data, one for car telemetry that polls approximately every 200ms, and lap summary data that is provided per driver per lap.
+This is data captured during the race and streamed by F1.com. There are two streams of event data, one for car telemetry that polls approximately every 200ms, and lap summary data that is provided per driver per lap. For previous races, the Fast-F1 library (https://github.com/theOehrly/Fast-F1) is available.
 ```
-{
-"Driver":"PIA",
-"LapTime":143155,
-"LapNumber":5.0,
-"Stint":4.0,
-"PitOutTime":4871064,
-"PitInTime":null,
-"Sector1Time":53433,
-"Sector2Time":32176,
-"Sector3Time":57546,
-"Sector1SessionTime":4922486,
-"Sector2SessionTime":4954662,
-"Sector3SessionTime":5012208,
-"SpeedI1":87.0,
-"SpeedI2":199.0,
-"SpeedFL":252.0,
-"SpeedST":189.0,
-"Compound":"INTERMEDIATE",
-"TyreLife":5.0,
-"FreshTyre":false,
-"Team":"McLaren",
-"LapStartTime":4868974,
-"LapStartDate":1742099311593,
-"TrackStatus":"4",
-"Position":3.0
-}
-```
-## Entity Data
-Entity data covers essentailly the metadata of a race - driver details, driver championship standings, team details, circuit details.This data generally changes after each round.
-```
+Telemetry data example:
 {
     "Date":1742099338869,
     "SessionTime":4896250,
@@ -82,19 +53,66 @@ Entity data covers essentailly the metadata of a race - driver details, driver c
     "date_delta":0
 }
 ```
+```
+Lap data example:
+{
+    "Driver":"PIA",
+    "LapTime":143155,
+    "LapNumber":5.0,
+    "Stint":4.0,
+    "PitOutTime":4871064,
+    "PitInTime":null,
+    "Sector1Time":53433,
+    "Sector2Time":32176,
+    "Sector3Time":57546,
+    "Sector1SessionTime":4922486,
+    "Sector2SessionTime":4954662,
+    "Sector3SessionTime":5012208,
+    "SpeedI1":87.0,
+    "SpeedI2":199.0,
+    "SpeedFL":252.0,
+    "SpeedST":189.0,
+    "Compound":"INTERMEDIATE",
+    "TyreLife":5.0,
+    "FreshTyre":false,
+    "Team":"McLaren",
+    "LapStartTime":4868974,
+    "LapStartDate":1742099311593,
+    "TrackStatus":"4",
+    "Position":3.0
+}
+```
+## Entity Data
+Entity data covers essentailly the metadata of a race - driver details, driver championship standings, team details, circuit details.This data generally changes after each round. This was ingested from the Jolpica F1 API (https://github.com/jolpica/jolpica-f1).
+```
+Driver data example:
+{
+    "driverId": "albon",
+    "permanentNumber": "23",
+    "code": "ALB",
+    "url": "http://en.wikipedia.org/wiki/Alexander_Albon",
+    "givenName": "Alexander",
+    "familyName": "Albon",
+    "dateOfBirth": "1996-03-23",
+    "nationality": "Thai"
+}
+```
 
-# how to setup
-**To get started, you will need:**
+# Getting Started
+**You will need**
 - An AWS account (https://aws.amazon.com/resources/create-account/)
 - AWS CLI - access key and secret access key method (https://docs.aws.amazon.com/cli/latest/userguide/getting-started-quickstart.html)
 - A Confluent account (https://www.confluent.io/get-started/)
 - A Snowflake account (https://signup.snowflake.com/)
 - Terraform installed locally (https://developer.hashicorp.com/terraform/install)
+*There is no need to pip install or npm install as this is handled by the Dockerfiles.
 
-Once you have set these up, you'll want to fork this repo, and enable workflows. Github Actions will handle the AWS infrastructure provisioning, along with building and pushing the Docker image to ECR, but before you use the workflows there's a few things to set up.
+Next,
+1. Fork this repo then ```git clone``` it so you have a local version.
+2. Enable workflows of Github for you forked version. 
 
 ## Github Secrets
-Github Actions relies on the following secrets:
+1. Add the following secrets to Github for your repo.
 - AWS_ACCESS_KEY_ID
 - AWS_SECRET_ACCESS_KEY
 - SNOWFLAKE_ACCOUNT
@@ -107,58 +125,44 @@ Github Actions relies on the following secrets:
 The reason Snowflake details are needed is because as part of SQLFluff's checks it will compile dbt - which requires those details.
 
 ## Snowflake Database and Schemas
-Set up Snowlfake with:
-- A Database called "f1"
-- A Scheme called "staging"
-- A Schema  called "marts"
-
-You may choose to change these and this is done in ```orchestration\dagster_pipeline\__init__.py```, ```orchestration\dagster_pipeline\assets\dbt\main\models\sources.yml``` and ```orchestration\dagster_pipeline\assets\dbt\main\profiles.yml```.
+1. Set up Snowlfake with:
+    - A Database called "f1"
+    - A Scheme called "staging"
+    - A Schema  called "marts"
 
 ## Confluent 
 ### Cluster and Topics
-1. Create a new Confluent cluster
-2. Set up two Topics, "f1_laps" and f1_tele". Both of these Topics required 20 partitions (the amount of drivers). Messages uses the driver code as a key and this ensures the correct order for messages - important when updating live position.
+1. Add a new Confluent cluster
+2. Set up two Topics, "f1_laps" and f1_tele". Both of these Topics require 20 partitions (the amount of drivers). Each message to the topic uses the driver code as a key and this ensures the correct order for messages - important when updating live position.
 ### Snowflake Connector
 1. Add a new Snowflake Sink Connector (https://docs.confluent.io/cloud/current/connectors/cc-snowflake-sink/cc-snowflake-sink.html?ajs_aid=15f7888d-2eec-438c-9c48-1f118dba39e4&ajs_uid=5710910#cc-snowflake-db-sink-gen-key-pair)
 2. Map f1_laps Topic to stg_laps table in Snowflake.
 3. Map f1_tele Topic to stg_telemetry in Snowflake.
 
 ## AWS S3 .env
-ECS tasks/services will rely on a .env in a S3 bucket for environment variables. Terraform then uses the location of this when creating ECS tasks.
-1. Use the template.env in this project, fill in your details, then rename .env. This assumes you have set up an account on Snowflake and Confluent.
-2. Create a new S3 bucket and upload your .env to this.
-3. This is then referred to in terraform.tfvars.
+ECS tasks/services will rely on a ```.env``` in a S3 bucket for environment variables. Terraform specifies the location of this when creating ECS tasks.
+1.Complete the ```template.env``` in this project with your details then rename to ```.env```. These details should be the same as your Github secrets, plus a few extra.
+2. Create a new S3 bucket and upload your ```.env``` to this. You will need this location for ```terraform.tfvars`` in the next step.
 
 ## Terraform state file
-Terraform, via Github Actions has been configured to manage state with its ```terraform.tfstate``` file located on S3. First Terraform must be run locally, then you can upload the state file to S3. To do this:
-1. Clone this repo
-2. Edit terraform.tfvars as needed
-3. Run aws congifure to login to you AWS account.
+Terraform, via Github Actions has been configured to manage state with its ```terraform.tfstate``` file located on S3. First, Terraform must be run locally, then you can upload the state file to S3. To do this:
+2. With your cloned local copy, edit ```terraform.tfvars``` as needed.
+3. Run aws configure to login to you AWS account.
 4. Run ```terraform init```
 5. Run ```terraform apply```
 6. Once this is complete the infrastructure folder that houses the Terraform files should have an additional file called ```terraform.tfstate```.
-7. Upload this to a separate S3 bucket and configure main.tf (of your forked repo) with your bucket name.
+7. Upload this to a separate S3 bucket. Your repo should now have an updated ```terraform.tfvars``` to your liking and ```main.tf``` should reflect the locatoin of yor Terraform state file.
 
 
+# Solution Architecture
+![images/arch_diagram.png](images/arch_diagram.png)
+# Entity Relationship Diagram
+![images/ent_diagram.png](images/ent_diagram.png)
+# Dependency Graph
 
-- run terra locally to get state and upload to s3 bucket
-    - terra will set up ecr, ecs, ecs tasks
-- upload .env to github bucket
-- define vars for tf
-- aws account
-- backfill based on round
-- snowflake account
-- confluent account
-    - set up snowflake role based on guide
-- providing the directories stay the same no need to pip install since it'll be part of docker, then with the nodejs one packages are installed with that too
+# More Detail on Each Component
 
-# architecture diagram
-
-# tables diagram
-
-# dependences with dagster (that'll also cover dbt)
-
-# kafka producer
+## Kafka Producer
 - f1 actually has real data available by the signalr protocol - but only available during events.
 - cluster per driver to keep right order
 - i used a python library to get the data from a previous event (Aus Grand Prix 2025)
@@ -169,7 +173,7 @@ Terraform, via Github Actions has been configured to manage state with its ```te
         - stg_telemetry
     - a realtime dashboard receives the telemetry and displays the race
 
-# orchestration
+# Orchestration
 - dagster materializes assets
     - jolpi api for staging to snowflake - every second day schedule
     - dbt then transforms and turns to marts - automaterialize eager
@@ -177,11 +181,11 @@ Terraform, via Github Actions has been configured to manage state with its ```te
 - partition by date snowflake
 
 
-# presentation
+# Presentation
 - streamlit on snowflake is used for some charting. the two files required for the streamlit app are in this repo. this is matplotlib mainly and sql like spark
 - the realtime dashboard uses a nodejs server where the kafka topic is consumed then through that same server websocket passes it to the website
 
-# infra
+# Infrastructure and CI/CD
 - using terraform to setup ecr, ecs, ecs tasks
 - new docker image is loaded to ecr with github actions and task definition updated
 - currently its manual tasks and i didn't want to setup a service that is alwasy running for this project, but i could have the task definition update on an existing service for sure
@@ -216,3 +220,8 @@ Terraform, via Github Actions has been configured to manage state with its ```te
     - theres no test branch before pushing to main
         - and no tests, logs
     
+# Notes and Limitations
+- Within Dagster the Jolpica F1 API class is set up to get data on the current season and round only. In order to get historical data, the Dagster asset and Jolpica F1 API class would need to be configured for backfilling.
+- Names of databases, schemas, topics, tables and AWS infrastructure can all be changed, but I have not (yet) set up one config file to make this more seamless.
+- Logging and testing definitely took a backseat in this project in order to get it done on time. There is of course some basic testing in dbt, as well as linting through Github actions, but this is far from complete.
+- Terraform is currently set up to define the ECS tasks, but it isn't configured to update a running service. If this was to be used in production it would be configured as a consistent service that is updated.
