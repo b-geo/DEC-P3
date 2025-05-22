@@ -168,7 +168,7 @@ Terraform, via Github Actions has been configured to manage state with its ```te
 
 # More Detail on Each Component
 ## Kafka Producer
-F1.com does stream live data via the SignalR during races and there is no authentication required to ingest this. FastF1 (https://github.com/theOehrly/Fast-F1) if a Python library which assists consuming the data and combining it in meaningful ways. In a production setting, it would be best to produce this data directly from the SignalR stream to a Kafka broker, however, that means
+F1.com does stream live data via the SignalR during races and there is no authentication required to ingest this. FastF1 (https://github.com/theOehrly/Fast-F1) if a Python library which assists consuming the data and combining it in meaningful ways. In a production setting, it would be best to produce this data directly from the SignalR stream to a Kafka broker, but for this project, I have stored lap and telemetry data from the first round of the 2025 as ```.jsonl``` files, these are then read and posted to Kafka topics by a Python file that acts as producer. This is designed to just be run locally for the purpose of this project.
 - f1 actually has real data available by the signalr protocol - but only available during events.
 - cluster per driver to keep right order
 - i used a python library to get the data from a previous event (Aus Grand Prix 2025)
