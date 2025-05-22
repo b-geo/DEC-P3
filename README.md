@@ -2,6 +2,14 @@
  [![Infrastructure and Docker Deployment](https://github.com/b-geo/DEC-P3/actions/workflows/deploy.yaml/badge.svg)](https://github.com/b-geo/DEC-P3/actions/workflows/deploy.yaml)
 [![Lint SQL and Python](https://github.com/b-geo/DEC-P3/actions/workflows/lint.yml/badge.svg)](https://github.com/b-geo/DEC-P3/actions/workflows/lint.yml)
 
+# Table of Contents
+- [Project Structure](#project-structure)
+- [Data Sources](#data-sources)
+- [Prerequisites](#prerequisites)
+- [Setup Instructions](#setup-instructions)
+- [Architecture](#architecture)
+- [Component Details](#component-details)
+- [Notes & Limitations](#notes-and-limitations)
 
  # 🏎️ Introduction
 Formula 1 has evolved beyond simple lap times and speed measurements to utilise comprehensive data analytics in all aspects of decision making and performance evaluation. Not only do teams require this data, but spectators equally enjoy the insights that can be extracted. This project ultimately converges on two dashboards, a realtime race dashboard and a post race summary dashboard. It is worth noting the dashboards display only a fraction of the overall insights available from the data.
@@ -28,7 +36,7 @@ The repository is organized into four main components:
 ┃ ┗ streaming_dashboard
  ```
 
-# Data Sources
+## Data Sources
 
 ### Event Data
 Event data is captured during races and streamed by F1.com. There are two primary data streams:
