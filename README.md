@@ -16,12 +16,12 @@ Formula 1 has evolved beyond simple lap times and speed measurements to utilise 
 
 ## Project Structure
 
-The repository is organized into four main components:
+The repository is organised into four main components:
 
 - **Infrastructure**: Builds the required cloud architecture
 - **Kafka Producer**: Provides lap data and telemetry data to Kafka topics
 - **Orchestration**: Handles ELT operations for batch data processing
-- **Presentation**: Dashboards for both real-time and batch data visualization
+- **Presentation**: Dashboards for both realtime and batch data visualisation
 
 ```
 ┣ infra
@@ -179,7 +179,7 @@ Terraform state is managed via GitHub Actions with the `terraform.tfstate` file 
 
 1. Edit `terraform.tfvars` with your specific configuration
 2. Configure AWS CLI: `aws configure`
-3. Initialize Terraform: `terraform init`
+3. Initialise Terraform: `terraform init`
 4. Apply Terraform configuration: `terraform apply`
 5. Upload the generated `terraform.tfstate` file to a separate S3 bucket
 6. Update `main.tf` to reflect your Terraform state file location
@@ -191,14 +191,14 @@ Terraform state is managed via GitHub Actions with the `terraform.tfstate` file 
   <img src="images/arch_diagram.png" width="800" alt="Architecture Diagram">
 </div>
 
-### Entity Relationship Diagram
-<div align="left">
-  <img src="images/ent_diagram.png" width="800" alt="ERD">
-</div>
-
 ### Dependency Graph
 <div align="left">
   <img src="images/dag.png" width="800" alt="DAG">
+</div>
+
+### Entity Relationship Diagram
+<div align="left">
+  <img src="images/ent_diagram.png" width="800" alt="ERD">
 </div>
 
 ## Component Details
@@ -208,7 +208,7 @@ F1.com streams live data via SignalR during races without authentication require
 
 For production environments, data should be produced directly from the SignalR stream to a Kafka broker. However, since live events are not always available for development, this project uses Fast-F1 to retrieve historical data from the first round of the 2025 season, storing lap and telemetry data as `.jsonl` files. A Python script acts as a Kafka producer, posting messages to two Kafka topics (`f1_tele` and `f1_laps`) with driver codes as keys to ensure proper partitioning.
 
-The Kafka topics serve two consumers: the real-time dashboard and the Snowflake sink connector.
+The Kafka topics serve two consumers: the realtime dashboard and the Snowflake sink connector.
 
 ### Orchestration
 All tables from staging to presentation are stored in Snowflake. The staging layer consists of:
@@ -220,13 +220,17 @@ Staging assets are scheduled to refresh every two days.
 dbt, orchestrated through Dagster, transforms staging tables for the marts layer. The presentation layer contains a comprehensive fact table that serves as the data source for Streamlit dashboards. Both marts and presentation layers use the "eager" Automaterialize policy to ensure changes flow through automatically when staging tables are updated.
 
 ### Presentation
-The presentation layer includes:
-- **snowflake_streamlit**: Used for summary data visualization
-- **streaming_dashboard**: Used for real-time data display
+- **snowflake_streamlit**: Used for post race summaries.
+Copy the contents of the project's `environment.yml` and `streamlit_app.py` files directly to your Snowflake Streamlit application.
+<div align="left">
+  <img src="images/summary_dashboard.png" width="800" alt="Dashboard 1">
+</div>
 
-For Snowflake Streamlit apps, copy the contents of the project's `environment.yml` and `streamlit_app.py` files directly to your Streamlit application files.
-
-The streaming dashboard is containerised as a Docker image, managed through GitHub Actions. It features a Node.js server that consumes both Kafka topics and provides data to the web interface via WebSocket, ensuring low latency through the unified server architecture.
+- **streaming_dashboard**: Used for realtime car track during a race.
+The streaming dashboard is containerised as a Docker image, managed through GitHub Actions. It features a Node.js server that consumes both Kafka topics and provides data to the web interface via WebSocket.
+<div align="left">
+  <img src="images/realtime_dashboard.png" width="800" alt="Dashboard 2">
+</div>
 
 ### Infrastructure and CI/CD
 Infrastructure is primarily provisioned through GitHub workflows triggered on merges to main or manual execution. Terraform manages ECR repositories, ECS clusters, and ECS tasks as the first job in the deployment workflow. The workflow outputs configure subsequent jobs that build Docker images, push them to ECR, and update ECS tasks. Docker images are built only when changes affect their respective folders.
