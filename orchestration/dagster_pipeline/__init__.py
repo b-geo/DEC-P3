@@ -5,14 +5,16 @@ from dagster_snowflake import snowflake_resource
 from dagster_pipeline.source_assets import snowflake
 from dagster_pipeline.assets import dbt
 from dagster_pipeline.schedules import staging_schedule
+from dagster_pipeline.jobs import full_staging_job
 
-defs = Definitions(
+f1_repo = Definitions(
     assets=[
         *jolpi.jolpi_assets_list,
         *dbt.dbt_assets_list,
         *snowflake.snowflake_source_assets_list,
     ],
     schedules=[staging_schedule],
+    jobs=[full_staging_job],
     resources={
         "snowflake_resource": snowflake_resource.configured(
             {

@@ -5,4 +5,4 @@ load_from:
 load_from:
   - python_module:
       module_name: dagster_pipeline
-      attribute: defs
+      attribute: f1_repo
