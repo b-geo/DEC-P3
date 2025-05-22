@@ -210,11 +210,11 @@ document.addEventListener('DOMContentLoaded', () => {
 		context.closePath();
 
 		// Fill the track
-		context.fillStyle = '#e6e6e6';
+		context.fillStyle = '#2a2a2a';
 		context.fill();
 
 		// Draw the track outline with anti-aliasing
-		context.strokeStyle = '#e10600';
+		context.strokeStyle = '#cc3333';
 		context.lineWidth = 2;
 		context.lineJoin = 'round';
 		context.lineCap = 'round';
@@ -226,7 +226,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		const startY = centerY + (startPoint[1] - trackData.minY) * baseScale;
 
 		context.beginPath();
-		context.strokeStyle = '#000';
+		context.strokeStyle = '#ffffff';
 		context.lineWidth = 3;
 		context.moveTo(startX - 15, startY);
 		context.lineTo(startX + 15, startY);
@@ -235,7 +235,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		// Draw the track name
 		const fontSize = Math.max(16, Math.min(20, canvasWidth / 30));
 		context.font = `bold ${fontSize}px Arial`;
-		context.fillStyle = '#333';
+		context.fillStyle = '#e0e0e0';
 		context.textAlign = 'center';
 		context.fillText('Melbourne Grand Prix Circuit', canvasWidth / 2, fontSize * 1.5);
 	}
@@ -318,46 +318,46 @@ document.addEventListener('DOMContentLoaded', () => {
 		});
 
 		// Listen for telemetry updates
-		socket.on('position-update', data => {
-			// Format: {"Date":1742098702974,"SessionTime":4260355,"DriverAhead":"","DistanceToDriverAhead":0.2,"RPM":10114.3998848,"Speed":0.0,"nGear":2,"Throttle":16.0,"Brake":true,"DRS":1,"Distance":-0.0016174214,"RelativeDistance":-0.0000000054,"Status":"OnTrack","X":-941.083631066,"Y":-1575.8587888095,"Z":86.0000000914,"Lap":2,"Driver":"VER","date_delta":0}
+socket.on('position-update', data => {
+	// Extract the driver and position data
+	const driverId = data.Driver;
+	const x = data.X;
+	const y = data.Y;
 
-			// Extract the driver and position data
-			const driverId = data.Driver;
-			const x = data.X;
-			const y = data.Y;
+	// Only process data for cars that are "OnTrack"
+	if (data.Status === 'OnTrack') {
+		// If this is a new car, assign a color
+		if (cars[driverId]) {
+			// Update existing car position
+			cars[driverId].x = x;
+			cars[driverId].y = y;
+			cars[driverId].speed = data.Speed;
+			cars[driverId].lap = data.Lap;
+			cars[driverId].distance = data.Distance; // Add this line
+			cars[driverId].lastUpdate = Date.now();
+		} else {
+			const dt = driver_team[driverId];
+			const tc = team_colour[dt];
 
-			// Only process data for cars that are "OnTrack"
-			if (data.Status === 'OnTrack') {
-				// If this is a new car, assign a color
-				if (cars[driverId]) {
-					// Update existing car position
-					cars[driverId].x = x;
-					cars[driverId].y = y;
-					cars[driverId].speed = data.Speed;
-					cars[driverId].lap = data.Lap;
-					cars[driverId].lastUpdate = Date.now();
-				} else {
-					const dt = driver_team[driverId];
-					const tc = team_colour[dt];
+			cars[driverId] = {
+				x,
+				y,
+				color: tc[0],
+				line: tc[1],
+				speed: data.Speed,
+				lap: data.Lap,
+				distance: data.Distance, // Add this line
+				lastUpdate: Date.now(),
+			};
 
-					cars[driverId] = {
-						x,
-						y,
-						color: tc[0],
-						line: tc[1],
-						speed: data.Speed,
-						lap: data.Lap,
-						lastUpdate: Date.now(),
-					};
+			// Add to the legend
+			updateLegend();
+		}
 
-					// Add to the legend
-					updateLegend();
-				}
-
-				// Update the leaderboard
-				updateLeaderboard();
-			}
-		});
+		// Update the leaderboard
+		updateLeaderboard();
+	}
+});
 
 		// Handle connection errors
 		socket.on('connect_error', error => {
@@ -401,67 +401,76 @@ document.addEventListener('DOMContentLoaded', () => {
 	}
 
 	// Update the leaderboard
-	function updateLeaderboard() {
-		// Get an array of cars and sort by lap (descending) and then by relative distance
-		const carArray = Object.entries(cars)
-			.map(([driverId, car]) => ({
-				id: driverId,
-				...car,
-			}))
-			.filter(car => {
-				// Filter out stale data (cars that haven't been updated recently)
-				const now = Date.now();
-				return now - car.lastUpdate < 5000; // 5 seconds threshold
-			})
-			.sort((a, b) => {
-				// Sort by lap (descending)
-				if (b.lap !== a.lap) {
-					return b.lap - a.lap;
-				}
+// Update the leaderboard
+function updateLeaderboard() {
+	// Get an array of cars and sort by race position
+	const carArray = Object.entries(cars)
+		.map(([driverId, car]) => ({
+			id: driverId,
+			...car,
+		}))
+		.filter(car => {
+			// Filter out stale data (cars that haven't been updated recently)
+			const now = Date.now();
+			return now - car.lastUpdate < 5000; // 5 seconds threshold
+		})
+		.sort((a, b) => {
+			// Calculate total distance for each car
+			// Total distance = (completed laps * lap distance) + current lap distance
+			// Since we don't know the exact lap length, we'll use a large multiplier
+			// to ensure lap differences are more significant than distance differences
+			const lapMultiplier = 10000; // Adjust this if needed based on your track
+			
+			const totalDistanceA = (a.lap - 1) * lapMultiplier + a.distance;
+			const totalDistanceB = (b.lap - 1) * lapMultiplier + b.distance;
+			
+			// Sort by total distance (descending - highest distance first)
+			if (totalDistanceB !== totalDistanceA) {
+				return totalDistanceB - totalDistanceA;
+			}
+			
+			// If somehow total distances are equal, sort by driver ID for consistency
+			return a.id.localeCompare(b.id);
+		});
 
-				// If same lap, could sort by track position, but we don't have that data
-				// Just sort by driver ID for consistency
-				return a.id.localeCompare(b.id);
-			});
+	// Clear the leaderboard
+	leaderboardBody.innerHTML = '';
 
-		// Clear the leaderboard
-		leaderboardBody.innerHTML = '';
+	// Add rows for each car
+	for (const [index, car] of carArray.entries()) {
+		const row = document.createElement('tr');
 
-		// Add rows for each car
-		for (const [index, car] of carArray.entries()) {
-			const row = document.createElement('tr');
+		// Position
+		const posCell = document.createElement('td');
+		posCell.textContent = index + 1;
+		row.append(posCell);
 
-			// Position
-			const posCell = document.createElement('td');
-			posCell.textContent = index + 1;
-			row.append(posCell);
+		// Driver ID
+		const driverCell = document.createElement('td');
+		driverCell.textContent = car.id;
+		driverCell.style.color = car.color;
+		driverCell.style.fontWeight = 'bold';
+		row.append(driverCell);
 
-			// Driver ID
-			const driverCell = document.createElement('td');
-			driverCell.textContent = car.id;
-			driverCell.style.color = car.color;
-			driverCell.style.fontWeight = 'bold';
-			row.append(driverCell);
+		// Lap
+		const lapCell = document.createElement('td');
+		lapCell.textContent = car.lap;
+		row.append(lapCell);
 
-			// Lap
-			const lapCell = document.createElement('td');
-			lapCell.textContent = car.lap;
-			row.append(lapCell);
+		// Speed
+		const speedCell = document.createElement('td');
+		speedCell.textContent = `${Math.round(car.speed)} km/h`;
+		row.append(speedCell);
 
-			// Speed
-			const speedCell = document.createElement('td');
-			speedCell.textContent = `${Math.round(car.speed)} km/h`;
-			row.append(speedCell);
+		// Last update
+		const updateCell = document.createElement('td');
+		const secondsAgo = Math.round((Date.now() - car.lastUpdate) / 1000);
+		updateCell.textContent = `${secondsAgo}s ago`;
+		row.append(updateCell);
 
-			// Last update
-			const updateCell = document.createElement('td');
-			const secondsAgo = Math.round((Date.now() - car.lastUpdate) / 1000);
-			updateCell.textContent = `${secondsAgo}s ago`;
-			row.append(updateCell);
-
-			leaderboardBody.append(row);
-		}
+		leaderboardBody.append(row);
 	}
+}
 
 	// Initialize canvas dimensions
 	setCanvasDimensions();
