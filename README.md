@@ -152,7 +152,6 @@ Configure Snowflake with the following structure:
 #### Cluster and Topics
 1. Create a new Confluent cluster
 2. Set up two topics: `f1_laps` and `f1_tele`
-   - Both topics require 20 partitions (one per driver)
    - Messages use driver code as the key to ensure correct message ordering for live position updates
 
 #### Snowflake Connector
