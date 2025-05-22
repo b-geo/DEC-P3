@@ -12,7 +12,6 @@ raw_dbt_assets_list: List[AssetsDefinition] = load_assets_from_dbt_manifest(
     manifest=Path(MANIFEST_PATH),
     dbt_resource_key="dbt_resource",
     use_build_command=True,
-    node_info_to_auto_materialize_policy_fn=lambda _: AutoMaterializePolicy.eager(),
 )
 
 dbt_assets_list = [
