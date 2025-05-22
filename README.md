@@ -155,9 +155,13 @@ Terraform, via Github Actions has been configured to manage state with its ```te
 
 
 # Solution Architecture
-![images/arch_diagram.png](images/arch_diagram.png)
+<div align="left">
+  <img src="images/arch_diagram.png" width="800" alt="Architecture Diagram">
+</div>
 # Entity Relationship Diagram
-![images/ent_diagram.png](images/ent_diagram.png)
+<div align="left">
+  <img src="images/ent_diagram.png" width="800" alt="ERD">
+</div>
 # Dependency Graph
 
 # More Detail on Each Component
@@ -225,3 +229,4 @@ Terraform, via Github Actions has been configured to manage state with its ```te
 - Names of databases, schemas, topics, tables and AWS infrastructure can all be changed, but I have not (yet) set up one config file to make this more seamless.
 - Logging and testing definitely took a backseat in this project in order to get it done on time. There is of course some basic testing in dbt, as well as linting through Github actions, but this is far from complete.
 - Terraform is currently set up to define the ECS tasks, but it isn't configured to update a running service. If this was to be used in production it would be configured as a consistent service that is updated.
+- Although part of this project uses Javascript, there isn't yet any Javascript linting happening in the Github linting workflow.

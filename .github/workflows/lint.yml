@@ -1,4 +1,4 @@
-name: Lint SQL and Python
+name: Lint SQL Python and Javascript
 
 on:
   # Can be manually triggered
@@ -18,10 +18,23 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: "3.12"
+          cache: 'pip'
 
-      - name: Install dbt and SQLFluff
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install packages required for Python and SQL linting
         run: |
           pip install dbt-snowflake sqlfluff sqlfluff-templater-dbt black
+
+      - name: Install and run XO linting for Javascript
+        working-directory: presentation/streaming_dashboard
+        run: |
+          npm install xo
+          npx xo "**/*.js" --ignore-pattern="**/node_modules/**" --no-eslintrc
 
       - name: Cache dbt packages
         uses: actions/cache@v3
