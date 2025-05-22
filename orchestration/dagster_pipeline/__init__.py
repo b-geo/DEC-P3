@@ -13,8 +13,8 @@ f1_repo = Definitions(
         *dbt.dbt_assets_list,
         *snowflake.snowflake_source_assets_list
     ],
-    # schedules=[staging_schedule],
-    # jobs=[full_staging_job],
+    schedules=[staging_schedule],
+    jobs=[full_staging_job],
     resources={
         "snowflake_resource": snowflake_resource.configured(
             {
