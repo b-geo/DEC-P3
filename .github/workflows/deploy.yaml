@@ -1,4 +1,4 @@
-name: Infrastructure and Docker Deployment
+name: Deployment
 
 on:
   # Can be manually triggered
