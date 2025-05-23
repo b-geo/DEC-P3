@@ -7,19 +7,19 @@
 - [Data Sources](#data-sources)
 - [Prerequisites](#prerequisites)
 - [Setup Instructions](#setup-instructions)
-- [Architecture](#architecture)
+- [Structure](#structure)
 - [Component Details](#component-details)
 - [Notes & Limitations](#notes-and-limitations)
 
  # 🏎️ Introduction
-Formula 1 has evolved beyond simple lap times and speed measurements to utilise comprehensive data analytics in all aspects of decision making and performance evaluation. Not only do teams require this data, but spectators equally enjoy the insights that can be extracted. This project ultimately converges on two dashboards, a realtime race dashboard and a post race summary dashboard. It is worth noting the dashboards display only a fraction of the overall insights available from the data.
+Formula 1 is a sport highly reliant on data to both make decisions and analyse results; and it isn't just teams who use this data, spectators are equally interested in this analysis. This project combines a mixture of realtime telemetry and lap data, as well as post race summary data, to ultimately converge on two dashboards, one for realtime data and one for the post race summary. It is worth noting the dashboards display only a fraction of the overall insights available from the data.
 
 ## Project Structure
 
 The repository is organised into four main components:
 
 - **Infrastructure**: Builds the required cloud architecture
-- **Kafka Producer**: Provides lap data and telemetry data to Kafka topics
+- **Kafka Producer**: Provides realtime data to Kafka topics
 - **Orchestration**: Handles ELT operations for batch data processing
 - **Presentation**: Dashboards for both realtime and batch data visualisation
 
@@ -39,12 +39,12 @@ The repository is organised into four main components:
 ## Data Sources
 
 ### Event Data
-Event data is captured during races and streamed by F1.com. There are two primary data streams:
+Event data is emitted during races by F1.com. There are two primary data streams:
 
 1. **Car Telemetry**: Polls approximately every 200ms during live races
 2. **Lap Summary Data**: Provided per driver per lap
 
-For historical race data, the [Fast-F1 library](https://github.com/theOehrly/Fast-F1) is utilised.
+For the purpose of this project, I have captured historical event data from the [Fast-F1 library](https://github.com/theOehrly/Fast-F1).
 
 **Telemetry Data Example:**
 ```json
@@ -175,7 +175,7 @@ ECS tasks and services require a `.env` file stored in S3 for environment variab
 3. Note the S3 location for use in `terraform.tfvars`
 
 ### Terraform State Management
-Terraform state is managed via GitHub Actions with the `terraform.tfstate` file stored on S3:
+Terraform state is managed via a `terraform.tfstate` file stored in an S3 bucket:
 
 1. Edit `terraform.tfvars` with your specific configuration
 2. Configure AWS CLI: `aws configure`
@@ -184,9 +184,9 @@ Terraform state is managed via GitHub Actions with the `terraform.tfstate` file 
 5. Upload the generated `terraform.tfstate` file to a separate S3 bucket
 6. Update `main.tf` to reflect your Terraform state file location
 
-## Architecture
+## Structure
 
-### Solution Architecture
+### Architecture
 <div align="left">
   <img src="images/arch_diagram.png" width="800" alt="Architecture Diagram">
 </div>
@@ -226,7 +226,7 @@ Copy the contents of the project's `environment.yml` and `streamlit_app.py` file
   <img src="images/summary_dashboard.png" width="800" alt="Dashboard 1">
 </div>
 
-- **streaming_dashboard**: Used for realtime car track during a race.
+- **streaming_dashboard**: Used for realtime car tracking during a race.
 The streaming dashboard is containerised as a Docker image, managed through GitHub Actions. It features a Node.js server that consumes both Kafka topics and provides data to the web interface via WebSocket.
 <div align="left">
   <img src="images/realtime_dashboard.png" width="800" alt="Dashboard 2">
@@ -239,7 +239,7 @@ The streaming dashboard and orchestration containers run in the same ECS cluster
 - **Streaming Dashboard**: Configured for small EC2 instances
 - **Orchestration**: Configured for AWS Fargate
 
-An additional workflow handles Python and SQL code linting, automatically fixing formatting issues where possible and requiring manual fixes for issues beyond automatic correction capabilities.
+An additional workflow handles Python and SQL code linting. Simple formatting issues will be automatically fixed where possible and issues that can't be fixed will be flagged and the developer will be required to fix the issue locally before pushing again.
 
 ## Notes and Limitations
 
