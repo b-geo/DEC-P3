@@ -149,11 +149,16 @@ Add the following secrets to your GitHub repository:
 
 *Note: Snowflake credentials are required for SQLFluff's dbt compilation checks.*
 
-### Snowflake Database Setup
+### Snowflake
+
+#### Database Setup
 Configure Snowflake with the following structure:
 - Database: `f1`
 - Schema: `staging`
 - Schema: `marts`
+
+#### Streamlit Dashboard Setup
+Create a new Streamlit Dashboard on Snowflake, then copy the contents of the project's `environment.yml` and `streamlit_app.py` files directly to your Snowflake Streamlit application.
 
 ### Confluent Configuration
 
@@ -217,17 +222,18 @@ All tables from staging to presentation are stored in Snowflake. The staging lay
 
 Staging assets are scheduled to refresh every two days.
 
-dbt, orchestrated through Dagster, transforms staging tables for the marts layer. The presentation layer contains a comprehensive fact table that serves as the data source for Streamlit dashboards. Both marts and presentation layers use the "eager" Automaterialize policy to ensure changes flow through automatically when staging tables are updated.
+dbt, orchestrated through Dagster, transforms staging tables for the marts layer. The presentation layer contains a comprehensive fact table that serves as the data source for a Streamlit dashboard. Both marts and presentation layers use the "eager" Automaterialize policy to ensure changes flow through automatically when staging tables are updated.
 
 ### Presentation
-- **snowflake_streamlit**: Used for post race summaries.
-Copy the contents of the project's `environment.yml` and `streamlit_app.py` files directly to your Snowflake Streamlit application.
+- **snowflake_streamlit**: This dashboard summarises data post race. You are able to select the season and round you want to view and the charts will update. One chart shows the tyre strategies of drivers and the other shows a comparison of team lap times.
+
 <div align="left">
   <img src="images/summary_dashboard.png" width="800" alt="Dashboard 1">
 </div>
 
-- **streaming_dashboard**: Used for realtime car tracking during a race.
-The streaming dashboard is containerised as a Docker image, managed through GitHub Actions. It features a Node.js server that consumes both Kafka topics and provides data to the web interface via WebSocket.
+- **streaming_dashboard**: This dashbaord is for realtime car telemetry data during a race.
+The streaming dashboard is containerised as a Docker image, managed through GitHub Actions. It features a Node.js server that consumes both Kafka topics and provides data to the web interface via WebSocket.You are able to view the lap number of each driver, their speed, and position on track.
+
 <div align="left">
   <img src="images/realtime_dashboard.png" width="800" alt="Dashboard 2">
 </div>
